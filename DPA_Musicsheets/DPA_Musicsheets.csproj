@@ -68,7 +68,15 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="SanfordAdapter\Tonal\Chord.cs" />
+    <Compile Include="SanfordAdapter\Tonal\Rest.cs" />
+    <Compile Include="SanfordAdapter\IBuilder.cs" />
+    <Compile Include="SanfordAdapter\MidiReader.cs" />
+    <Compile Include="SanfordAdapter\Tonal\Note.cs" />
+    <Compile Include="SanfordAdapter\Player.cs" />
+    <Compile Include="SanfordAdapter\Song.cs" />
     <Compile Include="MidiTrack.cs" />
+    <Compile Include="SanfordAdapter\Track.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
