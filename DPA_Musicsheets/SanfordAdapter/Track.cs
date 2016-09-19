@@ -20,6 +20,7 @@ namespace DPA_Musicsheets.SanfordAdapter
         //NOTE: Rest is Note without tonal data
         private void AddEvent(Rest e) { events.Add(e); }
         public Rest GetEvent(int index) { return events[index]; }
+        public int EventCount { get { return events.Count; } }
 
         public class Builder : IBuilder<Track>
         {

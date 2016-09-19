@@ -20,6 +20,7 @@ namespace DPA_Musicsheets.SanfordAdapter.Tonal
         Note() { }
 
         public int Keycode { get { return keycode; } }
+        public Tone Tone { get { return tone; } }
 
         public class Builder : IBuilder<Note>
         {

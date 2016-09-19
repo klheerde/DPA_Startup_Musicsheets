@@ -21,17 +21,20 @@ namespace DPA_Musicsheets.SanfordAdapter
             Duration = duration;
         }
 
-        public int StartTime { get { return startTime; } protected set { if (value >= 0) startTime = value; } }
-        public int Duration { get { return duration; } protected set { if (value > 0) duration = value; } }
+        public int StartTime
+        {
+            get { return startTime; }
+            protected set { if (value >= 0) startTime = value; }
+        }
+        public int Duration
+        {
+            get { return duration; }
+            protected set { if (value > 0) duration = value; }
+        }
         public int EndTime
         {
             get { return StartTime + Duration; }
-            set
-            {
-                if (value > StartTime)
-                    Duration = value - StartTime;
-                //TODO use beat to calc Dotted
-            }
+            set { if (value > StartTime) Duration = value - StartTime; }
         }
         //TODO build in Song for calc using bpm and shit
         //public bool Dotted { get { return dotted; } protected set { dotted = value; } }

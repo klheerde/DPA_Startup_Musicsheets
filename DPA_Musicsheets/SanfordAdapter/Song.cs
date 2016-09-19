@@ -25,9 +25,10 @@ namespace DPA_Musicsheets.SanfordAdapter
 
         public void AddTrack(Track track) { tracks.Add(track); }
         public Track GetTrack(int index) { return tracks[index]; }
+        public int TrackCount { get { return tracks.Count; } }
 
         //NOTE: Rest is Note without tonal data
-        public double NoteDurationInCounts(Track track, Rest note)
+        public double NoteDurationInCounts(Rest note)
         {
             return (double)note.Duration / (double)ticksPerBeat;
         }

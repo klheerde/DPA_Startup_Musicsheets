@@ -26,11 +26,14 @@ namespace DPA_Musicsheets
     /// </summary>
     public partial class MainWindow : Window
     {
-        private Player player;
+        private ObservableCollection<TrackViewModel> trackViewModels = new ObservableCollection<TrackViewModel>();
+        private Player player = new Player();
+        private Song song;
 
         public MainWindow()
         {
-            player = new Player();
+            InitializeComponent();
+            DataContext = trackViewModels;
         }
 
         private void btnOpen_Click(object sender, RoutedEventArgs e)
@@ -44,34 +47,30 @@ namespace DPA_Musicsheets
                 //NOTE: show the selected file in textbox
                 txt_MidiFilePath.Text = filePath;
 
-                Song song = MidiReader.ReadMidi(filePath);
-                ShowTracks(song);
+                song = MidiReader.ReadMidi(filePath);
+                ShowTracks();
             }
         }
 
-        private void ShowTracks(Song song)
+        private void ShowTracks()
         {
             Track t = song.GetTrack(1);
             Note n = t.GetEvent(0) as Note;
-            double d = song.NoteDurationInCounts(t, n);
+            double d = song.NoteDurationInCounts(n);
+            ShowMidiTracks();
         }
 
-        //private void btn_ShowContent_Click(object sender, RoutedEventArgs e)
-        //{
-        //    ShowMidiTracks(MidiReader.ReadMidi(txt_MidiFilePath.Text));
-        //}
-
-        //private void ShowMidiTracks(IEnumerable<MidiTrack> midiTracks)
-        //{
-        //    MidiTracks.Clear();
-
-        //    foreach (var midiTrack in midiTracks)
-        //    {
-        //        MidiTracks.Add(midiTrack);
-        //    }
-
-        //    tabCtrl_MidiContent.SelectedIndex = 0;
-        //}
+        private void ShowMidiTracks()
+        {
+            trackViewModels.Clear();
+            for (int i = 0; i < song.TrackCount; i++)
+            {
+                Track track = song.GetTrack(i);
+                TrackViewModel viewModel = new TrackViewModel(track);
+                trackViewModels.Add(viewModel);
+            }
+            tabCtrl_MidiContent.SelectedIndex = 0;
+        }
 
         //TODO get rid of
         private void btn_ShowContent_Click(object sender, RoutedEventArgs e)
@@ -83,9 +82,7 @@ namespace DPA_Musicsheets
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (player != null)
-            {
                 player.Dispose();
-            }
         }
 
 
