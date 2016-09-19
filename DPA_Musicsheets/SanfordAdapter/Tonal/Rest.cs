@@ -10,7 +10,7 @@ namespace DPA_Musicsheets.SanfordAdapter
     {
         private int startTime;
         private int duration;
-        private bool dotted;
+        //private bool dotted;
 
         //NOTE: for builder use
         public Rest() { }

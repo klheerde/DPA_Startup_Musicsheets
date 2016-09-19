@@ -9,30 +9,29 @@ namespace DPA_Musicsheets.SanfordAdapter
 {
     public class Song
     {
-        private int bpm;
-        private int[] timeSignature = new int[2];
-
         private Sequence sequence;
+
+        private int ticksPerBeat;
+        private int bpm;
 
         private List<Track> tracks = new List<Track>();
 
         private Song() { }
         public Song(Sequence sequence)
         {
-            //TODO sequence used?
             this.sequence = sequence;
+            ticksPerBeat = sequence.Division;
         }
 
-        public void AddTrack(Track track)
+        public void AddTrack(Track track) { tracks.Add(track); }
+        public Track GetTrack(int index) { return tracks[index]; }
+
+        //NOTE: Rest is Note without tonal data
+        public double NoteDurationInCounts(Track track, Rest note)
         {
-            tracks.Add(track);
-        }
-        public Track GetTrack(int index)
-        {
-            return tracks[index];
+            return (double)note.Duration / (double)ticksPerBeat;
         }
 
-        
         public class Builder : IBuilder<Song>
         {
             private Song buildee;
@@ -55,11 +54,11 @@ namespace DPA_Musicsheets.SanfordAdapter
                         break;
                     //case MetaType.SmpteOffset:
                     //    break;
-                    case MetaType.TimeSignature:
-                        //NOTE: kwart = 1 / 0.25 = 4
-                        buildee.timeSignature[0] = bytes[0];
-                        buildee.timeSignature[1] = (int)(1 / Math.Pow(bytes[1], -2));
-                        break;
+                    //case MetaType.TimeSignature:
+                    //    //NOTE: kwart = 1 / 0.25 = 4
+                    //    buildee.timeSignature[0] = bytes[0];
+                    //    buildee.timeSignature[1] = (int)(1 / Math.Pow(bytes[1], -2));
+                    //    break;
                     //case MetaType.KeySignature:
                     //    break;
                     //case MetaType.ProprietaryEvent:

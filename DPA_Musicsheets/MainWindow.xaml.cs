@@ -53,7 +53,7 @@ namespace DPA_Musicsheets
         {
             Track t = song.GetTrack(1);
             Note n = t.GetEvent(0) as Note;
-
+            double d = song.NoteDurationInCounts(t, n);
         }
 
         //private void btn_ShowContent_Click(object sender, RoutedEventArgs e)

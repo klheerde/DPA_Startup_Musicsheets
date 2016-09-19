@@ -24,7 +24,7 @@ namespace DPA_Musicsheets.SanfordAdapter
             for (int i = 0; i < sequence.Count; i++)
             {
                 //NOTE: converted to custom track by implicit operator in Track class
-                Track track = sequence[i];
+                Track track = Track.Convert(sequence[i], song);
 
                 song.AddTrack(track);
 
