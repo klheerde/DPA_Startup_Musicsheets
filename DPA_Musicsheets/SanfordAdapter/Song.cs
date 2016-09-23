@@ -1,4 +1,5 @@
-﻿using Sanford.Multimedia.Midi;
+﻿using DPA_Musicsheets.SanfordAdapter.Tonal;
+using Sanford.Multimedia.Midi;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ namespace DPA_Musicsheets.SanfordAdapter
 
         private int ticksPerBeat;
         private int bpm;
+        private int[] timeSignature = new int[2];
 
         private List<Track> tracks = new List<Track>();
 
@@ -26,9 +28,10 @@ namespace DPA_Musicsheets.SanfordAdapter
         public void AddTrack(Track track) { tracks.Add(track); }
         public Track GetTrack(int index) { return tracks[index]; }
         public int TrackCount { get { return tracks.Count; } }
+        public int TimeSignature(int i) { return timeSignature[i]; }
+        public Sequence Sequence { get { return sequence; } }
 
-        //NOTE: Rest is Note without tonal data
-        public double NoteDurationInCounts(Rest note)
+        public double NoteDurationInCounts(Note note)
         {
             return (double)note.Duration / (double)ticksPerBeat;
         }
@@ -55,11 +58,11 @@ namespace DPA_Musicsheets.SanfordAdapter
                         break;
                     //case MetaType.SmpteOffset:
                     //    break;
-                    //case MetaType.TimeSignature:
-                    //    //NOTE: kwart = 1 / 0.25 = 4
-                    //    buildee.timeSignature[0] = bytes[0];
-                    //    buildee.timeSignature[1] = (int)(1 / Math.Pow(bytes[1], -2));
-                    //    break;
+                    case MetaType.TimeSignature:
+                        //NOTE: kwart = 1 / 0.25 = 4
+                        buildee.timeSignature[0] = bytes[0];
+                        buildee.timeSignature[1] = (int)Math.Pow(2, bytes[1]);
+                        break;
                     //case MetaType.KeySignature:
                     //    break;
                     //case MetaType.ProprietaryEvent:

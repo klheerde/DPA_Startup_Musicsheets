@@ -6,16 +6,16 @@ using System.Threading.Tasks;
 
 namespace DPA_Musicsheets.SanfordAdapter
 {
-    public class Rest
+    public class _Rest
     {
         private int startTime;
         private int duration;
         //private bool dotted;
 
         //NOTE: for builder use
-        public Rest() { }
+        public _Rest() { }
 
-        public Rest(int startTime, int duration)
+        public _Rest(int startTime, int duration)
         {
             StartTime = startTime;
             Duration = duration;

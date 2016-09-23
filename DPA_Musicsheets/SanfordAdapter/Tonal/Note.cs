@@ -6,21 +6,48 @@ using System.Threading.Tasks;
 
 namespace DPA_Musicsheets.SanfordAdapter.Tonal
 {
-    enum Tone { C = 0, D = 2, E = 4, F = 5, G = 7, A = 9, B = 11 };
+    public enum Tone { C = 0, D = 2, E = 4, F = 5, G = 7, A = 9, B = 11, Rest = 13 /*Rest 13 outside octave scope*/ };
 
-    class Note : Rest
+    public class Note
     {
         private static readonly int VELOCITY = 90;
 
-        private int keycode;
-        private Tone tone;
-        private int raise;
+        private int startTime;
+        private int duration;
+
+        //default rest unless added keycode
+        private int keycode = 13;
+        private int octave = 0;
+        private Tone tone = Tone.Rest;
+        private int raise = 0;
 
         private int velocity = VELOCITY;
-        Note() { }
+
+        private Note() { }
+        public Note(int startTime, int duration)
+        {
+            StartTime = startTime;
+            Duration = duration;
+        }
 
         public int Keycode { get { return keycode; } }
+        public int Octave { get { return octave; } }
         public Tone Tone { get { return tone; } }
+        public int Raise { get { return raise; } }
+
+        public int StartTime {
+            get { return startTime; }
+            protected set { if (value >= 0) startTime = value; }
+        }
+        public int Duration {
+            get { return duration; }
+            protected set { if (value > 0) duration = value; }
+        }
+        public int EndTime {
+            get { return StartTime + Duration; }
+            set { if (value > StartTime) Duration = value - StartTime; }
+        }
+
 
         public class Builder : IBuilder<Note>
         {
@@ -45,6 +72,7 @@ namespace DPA_Musicsheets.SanfordAdapter.Tonal
                 }
 
                 buildee.keycode = keycode;
+                buildee.octave = octave;
                 buildee.tone = (Tone) key;
                 buildee.raise = raise;
                 return this;
@@ -52,6 +80,11 @@ namespace DPA_Musicsheets.SanfordAdapter.Tonal
             public Builder AddStart(int start)
             {
                 buildee.StartTime = start;
+                return this;
+            }
+            public Builder AddDuration(int duration)
+            {
+                buildee.Duration = duration;
                 return this;
             }
             public Builder AddVelocity(int velocity)

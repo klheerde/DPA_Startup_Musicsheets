@@ -55,7 +55,7 @@ namespace DPA_Musicsheets
         private void ShowTracks()
         {
             Track t = song.GetTrack(1);
-            Note n = t.GetEvent(0) as Note;
+            Note n = t.GetNote(0) as Note;
             double d = song.NoteDurationInCounts(n);
             ShowMidiTracks();
         }
@@ -76,13 +76,29 @@ namespace DPA_Musicsheets
         private void btn_ShowContent_Click(object sender, RoutedEventArgs e)
         { }
         private void btnPlay_Click(object sender, RoutedEventArgs e)
-        { }
+        {
+            if (player != null)
+                player.Dispose();
+            if (song != null)
+                player.Play(song);
+        }
         private void btn_Stop_Click(object sender, RoutedEventArgs e)
-        { }
+        {
+            if (player != null)
+                player.Dispose();
+        }
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             if (player != null)
                 player.Dispose();
+        }
+        private void tabCtrl_MidiContent_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            TrackViewModel viewModel = tabCtrl_MidiContent.SelectedItem as TrackViewModel;
+            if (viewModel == null)
+                return;
+            Track track = viewModel.Track;
+            TrackToSheet.Write(song, track, staff);
         }
 
 

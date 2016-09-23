@@ -10,13 +10,17 @@ namespace DPA_Musicsheets.SanfordAdapter
 {
     class TrackViewModel
     {
-        public ObservableCollection<string> Messages = new ObservableCollection<string>();
+        public ObservableCollection<string> Messages { get; private set; }
 
-        private Track track;
+
+        public string TrackName { get; set; }
+        public Track Track { get; private set; }
 
         public TrackViewModel(Track track)
         {
-            this.track = track;
+            Messages = new ObservableCollection<string>();
+            TrackName = track.Name;
+            Track = track;
             Process();
         }
 
@@ -24,13 +28,15 @@ namespace DPA_Musicsheets.SanfordAdapter
         {
             Messages.Clear();
 
-            for (int i = 0; i < track.EventCount; i++)
+            for (int i = 0; i < Track.NoteCount; i++)
             {
-                Rest rest = track.GetEvent(i);
+                Note note = Track.GetNote(i);
                 string message = "";
-                if (rest is Note)
-                    message += String.Format("keycode: {0}, ", (rest as Note).Keycode);
-                message += String.Format("start: {0}, duration {1}", rest.StartTime, rest.Duration);
+                if (note.Tone == Tone.Rest)
+                    message += "Rest, ";
+                else
+                    message += String.Format("Keycode: {0}, ", note.Keycode);
+                message += String.Format("start: {0}, duration {1}", note.StartTime, note.Duration);
                 Messages.Add(message);
             }
         }

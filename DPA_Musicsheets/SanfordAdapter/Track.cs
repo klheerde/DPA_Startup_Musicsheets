@@ -12,16 +12,16 @@ namespace DPA_Musicsheets.SanfordAdapter
     {
         private string name;
 
-        private int[] timeSignature = new int[2];
+        //private int[] timeSignature = new int[2];
 
-        //NOTE: rest is Note without tonal data
-        private List<Rest> events = new List<Rest>();
+        private List<Note> events = new List<Note>();
 
-        //NOTE: Rest is Note without tonal data
-        private void AddEvent(Rest e) { events.Add(e); }
-        public Rest GetEvent(int index) { return events[index]; }
-        public int EventCount { get { return events.Count; } }
+        private void AddNote(Note e) { events.Add(e); }
+        public Note GetNote(int index) { return events[index]; }
+        public int NoteCount { get { return events.Count; } }
 
+        public string Name { get { return name; } set { name = value; } }
+   
         public class Builder : IBuilder<Track>
         {
             private Track buildee;
@@ -44,11 +44,11 @@ namespace DPA_Musicsheets.SanfordAdapter
                     //    break;
                     //case MetaType.SmpteOffset:
                     //    break;
-                    case MetaType.TimeSignature:
-                        //NOTE: kwart = 1 / 0.25 = 4
-                        buildee.timeSignature[0] = bytes[0];
-                        buildee.timeSignature[1] = (int)(1 / Math.Pow(bytes[1], -2));
-                        break;
+                    //case MetaType.TimeSignature:
+                    //    //NOTE: kwart = 1 / 0.25 = 4
+                    //    buildee.timeSignature[0] = bytes[0];
+                    //    buildee.timeSignature[1] = (int) Math.Pow(2, bytes[1]);
+                    //break;
                     //case MetaType.KeySignature:
                     //    break;
                     //case MetaType.ProprietaryEvent:
@@ -105,13 +105,17 @@ namespace DPA_Musicsheets.SanfordAdapter
                             //NOTE: find returns first match
                             Note note = pending.Find(n => n.Keycode == channelMessage.Data1);
                             note.EndTime = midiEvent.AbsoluteTicks;
-                            track.AddEvent(note);
+                            track.AddNote(note);
                             pending.Remove(note);
 
                             if (midiEvent.DeltaTicks > 0) //rest
                             {
-                                Rest rest = new Rest(midiEvent.AbsoluteTicks, midiEvent.DeltaTicks);
-                                track.AddEvent(rest);
+                                Note rest = new Note.Builder()
+                                    .AddStart(midiEvent.AbsoluteTicks)
+                                    .AddDuration(midiEvent.DeltaTicks)
+                                    .Build();
+
+                                track.AddNote(rest);
                             }
                         }
 
@@ -125,12 +129,8 @@ namespace DPA_Musicsheets.SanfordAdapter
                     case MessageType.Meta:
                         //NOTE: Meta zegt iets over de track zelf.
                         MetaMessage metaMessage = midiEvent.MidiMessage as MetaMessage;
-                        if (metaMessage.MetaType == MetaType.Tempo)
-                            //NOTE: Build() not necessary
-                            new Song.Builder(song).SetMetaData(metaMessage);
-                        else
-                            //NOTE: Build() not necessary
-                            new Track.Builder(track).SetMetaData(metaMessage);
+                        new Song.Builder(song).SetMetaData(metaMessage);
+                        new Track.Builder(track).SetMetaData(metaMessage);
                             //track.name = Encoding.Default.GetString(metaMessage.GetBytes());
                         break;
                     default:

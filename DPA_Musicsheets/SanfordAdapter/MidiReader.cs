@@ -26,6 +26,9 @@ namespace DPA_Musicsheets.SanfordAdapter
                 //NOTE: converted to custom track by implicit operator in Track class
                 Track track = Track.Convert(sequence[i], song);
 
+                if (track.Name == null)
+                    track.Name = "Track " + i.ToString();
+
                 song.AddTrack(track);
 
                 //MidiTrack trackLog = new MidiTrack() { TrackName = i.ToString() };

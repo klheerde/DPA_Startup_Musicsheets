@@ -11,7 +11,7 @@ namespace DPA_Musicsheets.SanfordAdapter
     public class Player : IDisposable
     {
         private OutputDevice outputDevice;
-        private Sequence sequence;
+        //private Sequence sequence;
         private Sequencer sequencer;
 
         public Player() : this(new OutputDevice(0)) { }
@@ -19,6 +19,7 @@ namespace DPA_Musicsheets.SanfordAdapter
         {
             this.outputDevice = outputDevice;
             sequencer = new Sequencer();
+            /* Playing the audio */
             sequencer.ChannelMessagePlayed += (object sender, ChannelMessageEventArgs e) =>
             {
                 outputDevice.Send(e.Message);
@@ -31,14 +32,17 @@ namespace DPA_Musicsheets.SanfordAdapter
 
         public void Play(Song song)
         {
+            sequencer.Sequence = song.Sequence;
+            StartPlaying();
             //TODO
         }
 
         public void Play(string filePath)
         {
-            sequence = new Sequence();
+            Sequence sequence = new Sequence();
             sequence.LoadCompleted += (object sender, AsyncCompletedEventArgs e) =>
             {
+                sequencer.Sequence = sequence;
                 Play(sequence);
             };
             sequence.LoadAsync(filePath);
@@ -46,7 +50,7 @@ namespace DPA_Musicsheets.SanfordAdapter
 
         public void Play(Sequence sequence)
         {
-            sequencer.Sequence = this.sequence = sequence;
+            sequencer.Sequence = sequence;
             StartPlaying();
         }
 
@@ -57,7 +61,8 @@ namespace DPA_Musicsheets.SanfordAdapter
 
         public void Dispose()
         {
-            outputDevice.Close();
+            //TODO needs closing?
+            //outputDevice.Close();
             sequencer.Stop();
         }
     }
