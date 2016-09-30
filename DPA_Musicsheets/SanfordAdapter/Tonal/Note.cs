@@ -14,6 +14,8 @@ namespace DPA_Musicsheets.SanfordAdapter.Tonal
 
         private int startTime;
         private int duration;
+        private int count;
+        private bool dotted;
 
         //default rest unless added keycode
         private int keycode = 13;
@@ -47,6 +49,9 @@ namespace DPA_Musicsheets.SanfordAdapter.Tonal
             get { return StartTime + Duration; }
             set { if (value > StartTime) Duration = value - StartTime; }
         }
+
+        public int Count { get { return count; } }
+        public bool Dotted { get { return dotted; } }
 
 
         public class Builder : IBuilder<Note>
@@ -82,9 +87,56 @@ namespace DPA_Musicsheets.SanfordAdapter.Tonal
                 buildee.StartTime = start;
                 return this;
             }
+            public Builder AddEnd(int end, TrackPart trackPart)
+            {
+                double percentageOfBeatNote = song.NoteDurationInCounts(buildee);
+                double percentageOfWholeNote = (1.0 / timeSignature[1]) * percentageOfBeatNote;
+                for (int noteLength = 32; noteLength >= 1; noteLength /= 2)
+                {
+                    double absoluteNoteLength = (1.0 / noteLength);
+                    if (percentageOfWholeNote <= absoluteNoteLength)
+                    {
+                        buildee.dotted = absoluteNoteLength * 1.5 == percentageOfBeatNote;
+                        buildee.count = noteLength;
+                        return this;
+                    }
+                }
+
+                return this;
+            }
+            public Builder AddEnd(int end, Song song)
+            {
+                buildee.EndTime = end;
+
+                int[] startTimes = song.TimeSignatureStartTimes;
+                int index = Array.FindIndex(startTimes, s => s >= buildee.StartTime);
+                int startTime = startTimes[index > -1 ? index : startTimes.Length - 1];
+                int[] timeSignature = song.TimeSignature(startTime);
+
+                
+                double percentageOfBeatNote = (double)buildee.Duration / (double)timeSignature[2]; //ticksPerBeat
+                double percentageOfWholeNote = (1.0 / timeSignature[1]) * percentageOfBeatNote;
+                for (int noteLength = 32; noteLength >= 1; noteLength /= 2)
+                {
+                    double absoluteNoteLength = (1.0 / noteLength);
+                    if (percentageOfWholeNote <= absoluteNoteLength)
+                    {
+                        buildee.dotted = absoluteNoteLength * 1.5 == percentageOfBeatNote;
+                        buildee.count = noteLength;
+                        return this;
+                    }
+                }
+
+                return this;
+            }
             public Builder AddDuration(int duration)
             {
                 buildee.Duration = duration;
+                return this;
+            }
+            public Builder AddCount(int count)
+            {
+                buildee.count = count;
                 return this;
             }
             public Builder AddVelocity(int velocity)

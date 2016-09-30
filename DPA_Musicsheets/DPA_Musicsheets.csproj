@@ -77,6 +77,7 @@
     <Compile Include="SanfordAdapter\Song.cs" />
     <Compile Include="MidiTrack.cs" />
     <Compile Include="SanfordAdapter\Track.cs" />
+    <Compile Include="SanfordAdapter\TrackPart.cs" />
     <Compile Include="SanfordAdapter\TrackToSheet.cs" />
     <Compile Include="SanfordAdapter\TrackViewModel.cs" />
     <Page Include="MainWindow.xaml">
