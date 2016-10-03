@@ -87,30 +87,30 @@ namespace DPA_Musicsheets.SanfordAdapter.Tonal
                 buildee.StartTime = start;
                 return this;
             }
-            public Builder AddEnd(int end, TrackPart trackPart)
-            {
-                double percentageOfBeatNote = song.NoteDurationInCounts(buildee);
-                double percentageOfWholeNote = (1.0 / timeSignature[1]) * percentageOfBeatNote;
-                for (int noteLength = 32; noteLength >= 1; noteLength /= 2)
-                {
-                    double absoluteNoteLength = (1.0 / noteLength);
-                    if (percentageOfWholeNote <= absoluteNoteLength)
-                    {
-                        buildee.dotted = absoluteNoteLength * 1.5 == percentageOfBeatNote;
-                        buildee.count = noteLength;
-                        return this;
-                    }
-                }
+            //public Builder AddEnd(int end, TrackPart trackPart)
+            //{
+            //    double percentageOfBeatNote = song.NoteDurationInCounts(buildee);
+            //    double percentageOfWholeNote = (1.0 / timeSignature[1]) * percentageOfBeatNote;
+            //    for (int noteLength = 32; noteLength >= 1; noteLength /= 2)
+            //    {
+            //        double absoluteNoteLength = (1.0 / noteLength);
+            //        if (percentageOfWholeNote <= absoluteNoteLength)
+            //        {
+            //            buildee.dotted = absoluteNoteLength * 1.5 == percentageOfBeatNote;
+            //            buildee.count = noteLength;
+            //            return this;
+            //        }
+            //    }
 
-                return this;
-            }
+            //    return this;
+            //}
             public Builder AddEnd(int end, Song song)
             {
                 buildee.EndTime = end;
 
                 int[] startTimes = song.TimeSignatureStartTimes;
-                int index = Array.FindIndex(startTimes, s => s >= buildee.StartTime);
-                int startTime = startTimes[index > -1 ? index : startTimes.Length - 1];
+                int index = Array.FindIndex(startTimes, s => s > buildee.StartTime); //finds first hit which is bigger or equal
+                int startTime = startTimes[index > -1 ? index - 1 : startTimes.Length - 1]; //use previous one, or last
                 int[] timeSignature = song.TimeSignature(startTime);
 
                 

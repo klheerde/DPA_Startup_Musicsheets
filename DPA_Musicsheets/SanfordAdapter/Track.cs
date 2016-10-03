@@ -13,14 +13,11 @@ namespace DPA_Musicsheets.SanfordAdapter
     public class Track
     {
         public string Name { get; private set; }
-
-        private List<TrackPart> parts = new List<TrackPart>();
-        
-
-        private void AddNote(Note e) { events.Add(e); }
-        public Note GetNote(int index) { return events[index]; }
-        public int NoteCount { get { return events.Count; } }
-        
+        public List<TrackPart> Parts { get; private set; }
+        public Track()
+        {
+            Parts = new List<TrackPart>();
+        }
    
         public class Builder : IBuilder<Track>
         {
@@ -40,23 +37,25 @@ namespace DPA_Musicsheets.SanfordAdapter
 
             public Builder AddSanfordTrack(Song.Builder songBuilder, SanfordTrack convert)
             {
-                TrackPart.Builder trackPartBuilder = new TrackPart.Builder();
+                TrackPart.Builder trackPartBuilder = null; //force the below if statement to create trackPartBuilder.
                 List<Note.Builder> pending = new List<Note.Builder>();
 
                 int currentTrackPart = 0;
                 int currentTime = 0;
+                //NOTE:  called before foreach so when control track stays length 0.
                 int[] startTimes = songBuilder.Build().TimeSignatureStartTimes;
 
                 foreach (var midiEvent in convert.Iterator())
                 {
                     int startTime = 0;
+                    //NOTE: first track is control track, so doesn't enter this statement.
                     if (currentTrackPart < startTimes.Length && currentTime >= (startTime = startTimes[currentTrackPart]))
                     {
-                        AddTrackPart(trackPartBuilder.Build());
                         int[] timeSignature = songBuilder.Build().TimeSignature(startTime);
                         trackPartBuilder = new TrackPart.Builder()
                             .AddStartTime(startTime)
                             .AddTimeSignature(timeSignature[0], timeSignature[1]);
+                        AddTrackPart(trackPartBuilder.Build());
                         currentTrackPart++;
                     }
 
@@ -96,8 +95,9 @@ namespace DPA_Musicsheets.SanfordAdapter
                                 //    track.AddNote(rest);
                                 //}
                             }
-
-                            currentTime += midiEvent.AbsoluteTicks;
+                            
+                            //TODO could cause issues because current time = AbsoluteTicks + noteLength
+                            currentTime = midiEvent.AbsoluteTicks;
 
                             break;
 
@@ -108,7 +108,7 @@ namespace DPA_Musicsheets.SanfordAdapter
                         case MessageType.SystemRealtime:
                             break;
 
-                        //NOTE: mostly called by control track
+                        //NOTE: mostly called by control track.
                         case MessageType.Meta:
                             MetaMessage metaMessage = midiEvent.MidiMessage as MetaMessage;
                             
@@ -145,7 +145,7 @@ namespace DPA_Musicsheets.SanfordAdapter
 
             public Builder AddTrackPart(TrackPart trackPart)
             {
-                buildee.parts.Add(trackPart);
+                buildee.Parts.Add(trackPart);
                 return this;
             }
 
@@ -188,102 +188,102 @@ namespace DPA_Musicsheets.SanfordAdapter
             }
         }
 
-        public static Track Convert(Sanford.Multimedia.Midi.Track convert, Song song)
-        {
-            Track track = new Track();
-            TrackPart part = new TrackPart();
-            List<Note> pending = new List<Note>();
+        //public static Track Convert(Sanford.Multimedia.Midi.Track convert, Song song)
+        //{
+        //    Track track = new Track();
+        //    TrackPart part = new TrackPart();
+        //    List<Note> pending = new List<Note>();
 
-            bool firstTrack = true;
-            foreach (var midiEvent in convert.Iterator())
-            {
-                // Elke messagetype komt ook overeen met een class. Daarom moet elke keer gecast worden.
-                switch (midiEvent.MidiMessage.MessageType)
-                {
-                    // ChannelMessages zijn de inhoudelijke messages.
-                    case MessageType.Channel:
-                        var channelMessage = midiEvent.MidiMessage as ChannelMessage;
+        //    bool firstTrack = true;
+        //    foreach (var midiEvent in convert.Iterator())
+        //    {
+        //        // Elke messagetype komt ook overeen met een class. Daarom moet elke keer gecast worden.
+        //        switch (midiEvent.MidiMessage.MessageType)
+        //        {
+        //            // ChannelMessages zijn de inhoudelijke messages.
+        //            case MessageType.Channel:
+        //                var channelMessage = midiEvent.MidiMessage as ChannelMessage;
 
-                        //NOTE: velocity higher than 0 == start note
-                        //vel > 0 && delta > 0 = rest.len = delta
-                        if (channelMessage.Data2 > 0)
-                        {
-                            Note note = new Note.Builder()
-                                .AddKeycode(channelMessage.Data1)
-                                .AddVelocity(channelMessage.Data2)
-                                .AddStart(midiEvent.AbsoluteTicks)
-                                .Build();
+        //                //NOTE: velocity higher than 0 == start note
+        //                //vel > 0 && delta > 0 = rest.len = delta
+        //                if (channelMessage.Data2 > 0)
+        //                {
+        //                    Note note = new Note.Builder()
+        //                        .AddKeycode(channelMessage.Data1)
+        //                        .AddVelocity(channelMessage.Data2)
+        //                        .AddStart(midiEvent.AbsoluteTicks)
+        //                        .Build();
 
-                            pending.Add(note);
-                        }
-                        else //NOTE: end of note
-                        {
-                            //NOTE: find returns first match
-                            Note note = pending.Find(n => n.Keycode == channelMessage.Data1);
-                            new Note.Builder(note).AddEnd(midiEvent.AbsoluteTicks, song);
-                            track.AddNote(note);
-                            pending.Remove(note);
+        //                    pending.Add(note);
+        //                }
+        //                else //NOTE: end of note
+        //                {
+        //                    //NOTE: find returns first match
+        //                    Note note = pending.Find(n => n.Keycode == channelMessage.Data1);
+        //                    new Note.Builder(note).AddEnd(midiEvent.AbsoluteTicks, song);
+        //                    track.AddNote(note);
+        //                    pending.Remove(note);
 
-                            if (midiEvent.DeltaTicks > 0) //rest
-                            {
-                                Note rest = new Note.Builder()
-                                    .AddStart(midiEvent.AbsoluteTicks)
-                                    .AddDuration(midiEvent.DeltaTicks)
-                                    .Build();
+        //                    if (midiEvent.DeltaTicks > 0) //rest
+        //                    {
+        //                        Note rest = new Note.Builder()
+        //                            .AddStart(midiEvent.AbsoluteTicks)
+        //                            .AddDuration(midiEvent.DeltaTicks)
+        //                            .Build();
 
-                                track.AddNote(rest);
-                            }
-                        }
+        //                        track.AddNote(rest);
+        //                    }
+        //                }
 
-                        break;
-                    case MessageType.SystemExclusive:
-                        break;
-                    case MessageType.SystemCommon:
-                        break;
-                    case MessageType.SystemRealtime:
-                        break;
-                    case MessageType.Meta:
-                        MetaMessage metaMessage = midiEvent.MidiMessage as MetaMessage;
+        //                break;
+        //            case MessageType.SystemExclusive:
+        //                break;
+        //            case MessageType.SystemCommon:
+        //                break;
+        //            case MessageType.SystemRealtime:
+        //                break;
+        //            case MessageType.Meta:
+        //                MetaMessage metaMessage = midiEvent.MidiMessage as MetaMessage;
 
-                        if (metaMessage.MetaType == MetaType.TrackName)
-                            track.Name = Encoding.Default.GetString(metaMessage.GetBytes());
+        //                if (metaMessage.MetaType == MetaType.TrackName)
+        //                    track.Name = Encoding.Default.GetString(metaMessage.GetBytes());
 
-                        byte[] bytes = metaMessage.GetBytes();
-                        switch (metaMessage.MetaType)
-                        {
-                            case MetaType.Tempo:
-                                // Bitshifting is nodig om het tempo in BPM te be
-                                int tempo = (bytes[0] & 0xff) << 16 | (bytes[1] & 0xff) << 8 | (bytes[2] & 0xff);
-                                int bpm = 60000000 / tempo;
-                                return metaMessage.MetaType + ": " + bpm;
-                            //case MetaType.SmpteOffset:
-                            //    break;
-                            case MetaType.TimeSignature:                               //kwart = 1 / 0.25 = 4
-                                return metaMessage.MetaType + ": (" + bytes[0] + " / " + 1 / Math.Pow(bytes[1], -2) + ") ";
-                            //case MetaType.KeySignature:
-                            //    break;
-                            //case MetaType.ProprietaryEvent:
-                            //    break;
-                            case MetaType.TrackName:
-                                return metaMessage.MetaType + ": " + Encoding.Default.GetString(metaMessage.GetBytes());
-                            default:
-                                return metaMessage.MetaType + ": " + Encoding.Default.GetString(metaMessage.GetBytes());
-                        }
+        //                byte[] bytes = metaMessage.GetBytes();
+        //                switch (metaMessage.MetaType)
+        //                {
+        //                    case MetaType.Tempo:
+        //                        // Bitshifting is nodig om het tempo in BPM te be
+        //                        int tempo = (bytes[0] & 0xff) << 16 | (bytes[1] & 0xff) << 8 | (bytes[2] & 0xff);
+        //                        int bpm = 60000000 / tempo;
+        //                        return metaMessage.MetaType + ": " + bpm;
+        //                    //case MetaType.SmpteOffset:
+        //                    //    break;
+        //                    case MetaType.TimeSignature:                               //kwart = 1 / 0.25 = 4
+        //                        return metaMessage.MetaType + ": (" + bytes[0] + " / " + 1 / Math.Pow(bytes[1], -2) + ") ";
+        //                    //case MetaType.KeySignature:
+        //                    //    break;
+        //                    //case MetaType.ProprietaryEvent:
+        //                    //    break;
+        //                    case MetaType.TrackName:
+        //                        return metaMessage.MetaType + ": " + Encoding.Default.GetString(metaMessage.GetBytes());
+        //                    default:
+        //                        return metaMessage.MetaType + ": " + Encoding.Default.GetString(metaMessage.GetBytes());
+        //                }
 
-                        //new Song.Builder(song).SetMetaData(metaMessage);
-                        //new Track.Builder(track).SetMetaData(metaMessage);
-                            //track.name = Encoding.Default.GetString(metaMessage.GetBytes());
-                        break;
-                    default:
-                        //trackLog.Messages.Add(String.Format("MidiEvent {0}, absolute ticks: {1}, deltaTicks: {2}", midiEvent.MidiMessage.MessageType, midiEvent.AbsoluteTicks, midiEvent.DeltaTicks));
-                        break;
-                }
+        //                //new Song.Builder(song).SetMetaData(metaMessage);
+        //                //new Track.Builder(track).SetMetaData(metaMessage);
+        //                    //track.name = Encoding.Default.GetString(metaMessage.GetBytes());
+        //                break;
+        //            default:
+        //                //trackLog.Messages.Add(String.Format("MidiEvent {0}, absolute ticks: {1}, deltaTicks: {2}", midiEvent.MidiMessage.MessageType, midiEvent.AbsoluteTicks, midiEvent.DeltaTicks));
+        //                break;
+        //        }
 
-                if (firstTrack)
-                    firstTrack = false;
-            }
+        //        if (firstTrack)
+        //            firstTrack = false;
+        //    }
 
-            return track;
-        }
+        //    return track;
+        //}
     }
 }

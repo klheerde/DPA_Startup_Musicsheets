@@ -12,7 +12,7 @@ namespace DPA_Musicsheets.SanfordAdapter
     {
         private Sequence sequence;
 
-        private int ticksPerBeat;
+        //private int ticksPerBeat;
 
         private Dictionary<int, int[]> timeSignaturesByStartTimes = new Dictionary<int, int[]>();
         public int[] TimeSignatureStartTimes { get { return timeSignaturesByStartTimes.Keys.ToArray(); } }
@@ -38,17 +38,12 @@ namespace DPA_Musicsheets.SanfordAdapter
         //public int TimeSignature(int i) { return timeSignature[i]; }
         public Sequence Sequence { get { return sequence; } }
 
-        public double NoteDurationInCounts(Note note)
-        {
-            return (double)note.Duration / (double)ticksPerBeat;
-        }
-
         public class Builder : IBuilder<Song>
         {
             private Song buildee;
             public Builder() : this(new Song()) { }
             public Builder(Song song) : this(song, null) { }
-            public Builder (Sequence sequence) : this(new Song(), sequence) { }
+            public Builder (Sequence sequence) : this(new Song(sequence), sequence) { }
             public Builder(Song song, Sequence sequence)
             {
                 buildee = song;
@@ -68,8 +63,8 @@ namespace DPA_Musicsheets.SanfordAdapter
             { 
                 double quarterToSig1 = 4 / countsPerbeat;
                 double tickPerSig1 = buildee.Sequence.Division * quarterToSig1;
-                int ticksPerBeat = (int)(tickPerSig1 * amountPerBar);
-                buildee.timeSignaturesByStartTimes.Add(startTime, new int[]{amountPerBar, countsPerbeat, ticksPerBeat});
+                //int ticksPerBeat = (int)(tickPerSig1 * amountPerBar);
+                buildee.timeSignaturesByStartTimes.Add(startTime, new int[]{amountPerBar, countsPerbeat, (int)tickPerSig1/*ticksPerBeat */});
                 return this;
             }
 

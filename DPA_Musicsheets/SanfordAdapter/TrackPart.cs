@@ -9,8 +9,7 @@ namespace DPA_Musicsheets.SanfordAdapter
 {
     public class TrackPart
     {
-        private List<Note> events = new List<Note>();
-        public Note this[int index] { get { return events[index]; } private set { events[index] = value; } }
+        public List<Note> Notes { get; private set; }
 
         public int StartTime { get; private set; }
         private int[] timeSignature = new int[2];
@@ -18,6 +17,11 @@ namespace DPA_Musicsheets.SanfordAdapter
 
         
         public int Repeat { get; private set; }
+
+        public TrackPart()
+        {
+            Notes = new List<Note>();
+        }
 
 
         public class Builder : IBuilder<TrackPart>
@@ -31,7 +35,7 @@ namespace DPA_Musicsheets.SanfordAdapter
 
             public Builder AddNote(Note note)
             {
-                buildee.events.Add(note);
+                buildee.Notes.Add(note);
                 return this;
             }
 

@@ -28,16 +28,21 @@ namespace DPA_Musicsheets.SanfordAdapter
         {
             Messages.Clear();
 
-            for (int i = 0; i < Track.NoteCount; i++)
+            foreach (TrackPart trackPart in Track.Parts)
             {
-                Note note = Track.GetNote(i);
-                string message = "";
-                if (note.Tone == Tone.Rest)
-                    message += "Rest, ";
-                else
-                    message += String.Format("Keycode: {0}, ", note.Keycode);
-                message += String.Format("start: {0}, duration {1}", note.StartTime, note.Duration);
-                Messages.Add(message);
+                Messages.Add("New TrackPart:");
+                Messages.Add("\tStartTime: " + trackPart.StartTime);
+                Messages.Add("\tTimeSignature: " + trackPart.TimeSignature(0) + "/" + trackPart.TimeSignature(1));
+                Messages.Add("\tNotes:");
+
+                foreach (Note note in trackPart.Notes)
+                {
+                    //TODO add more display info
+                    string message = "\t\t";
+                    message += note.Tone == Tone.Rest ? "Rest, " : String.Format("Keycode: {0}, ", note.Keycode);
+                    message += String.Format("start: {0}, duration {1}", note.StartTime, note.Duration);
+                    Messages.Add(message);
+                }
             }
         }
     }

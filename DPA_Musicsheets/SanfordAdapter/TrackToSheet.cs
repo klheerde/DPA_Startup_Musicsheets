@@ -15,28 +15,51 @@ namespace DPA_Musicsheets.SanfordAdapter
             viewer.ClearMusicalIncipit();
             viewer.AddMusicalSymbol(new Clef(ClefType.GClef, 2));
 
-            int countDuration = song.TimeSignature(1);
-            int amountOfCountDurationInBar = song.TimeSignature(0) * countDuration;
-            for (int i = 0; i < track.NoteCount; i++)
+            //only show first for now.
+            foreach (TrackPart trackPart in track.Parts)
             {
-                var note = track.GetNote(i);
-
-                MusicalSymbol symbol;
-                if (note.Tone == Tonal.Tone.Rest)
-                    symbol = new Rest(MusicalSymbolDuration.Quarter);
-                else
+                foreach (Tonal.Note note in trackPart.Notes)
                 {
-                    string tone = note.Tone.ToString(); //default ToString("G");
-                    int octave = note.Octave;
-                    int raise = note.Raise;
-                    double counts = song.NoteDurationInCounts(note);
-                    double duration = countDuration / counts;
-                    MusicalSymbolDuration d = (MusicalSymbolDuration) duration;
-                    symbol = new Note(tone, raise, octave, d, NoteStemDirection.Up, NoteTieType.None, new List<NoteBeamType>() { NoteBeamType.Start, NoteBeamType.Start });
-                }
+                    MusicalSymbol symbol;
+                    MusicalSymbolDuration duration = (MusicalSymbolDuration)note.Count;
 
-                viewer.AddMusicalSymbol(symbol);
+                    if (note.Tone == Tonal.Tone.Rest)
+                    {
+                        symbol = new Rest(duration);
+                    }
+                    else
+                    {
+                        string tone = note.Tone.ToString(); //default ToString("G");
+                        int octave = note.Octave;
+                        int raise = note.Raise;
+                        symbol = new Note(tone, raise, octave, duration, NoteStemDirection.Up, NoteTieType.None, new List<NoteBeamType>() { NoteBeamType.Start, NoteBeamType.Start });
+                    }
+                    viewer.AddMusicalSymbol(symbol);
+                }
             }
+
+            //int countDuration = song.TimeSignature(1);
+            //int amountOfCountDurationInBar = song.TimeSignature(0) * countDuration;
+            //for (int i = 0; i < track.NoteCount; i++)
+            //{
+            //    var note = track.GetNote(i);
+
+            //    MusicalSymbol symbol;
+            //    if (note.Tone == Tonal.Tone.Rest)
+            //        symbol = new Rest(MusicalSymbolDuration.Quarter);
+            //    else
+            //    {
+            //        string tone = note.Tone.ToString(); //default ToString("G");
+            //        int octave = note.Octave;
+            //        int raise = note.Raise;
+            //        double counts = song.NoteDurationInCounts(note);
+            //        double duration = countDuration / counts;
+            //        MusicalSymbolDuration d = (MusicalSymbolDuration) duration;
+            //        symbol = new Note(tone, raise, octave, d, NoteStemDirection.Up, NoteTieType.None, new List<NoteBeamType>() { NoteBeamType.Start, NoteBeamType.Start });
+            //    }
+
+            //    viewer.AddMusicalSymbol(symbol);
+            //}
         }
     }
 }

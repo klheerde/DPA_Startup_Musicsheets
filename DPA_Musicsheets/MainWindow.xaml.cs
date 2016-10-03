@@ -55,8 +55,6 @@ namespace DPA_Musicsheets
         private void ShowTracks()
         {
             Track t = song.GetTrack(1);
-            Note n = t.GetNote(0) as Note;
-            double d = song.NoteDurationInCounts(n);
             ShowMidiTracks();
         }
 

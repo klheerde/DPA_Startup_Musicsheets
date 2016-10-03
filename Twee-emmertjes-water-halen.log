@@ -1,0 +1,51 @@
+# -*-compilation-*-
+Processing `C:/Users/kenva/School/blok13/design patterns/DPA_Startup_Musicsheets/Twee-emmertjes-water-halen.ly'
+Parsing...
+Interpreting music...
+C:/Users/kenva/School/blok13/design patterns/DPA_Startup_Musicsheets/Twee-emmertjes-water-halen.ly:37:3: warning: barcheck failed at: 1/2
+  
+  | % 2
+C:/Users/kenva/School/blok13/design patterns/DPA_Startup_Musicsheets/Twee-emmertjes-water-halen.ly:39:3: warning: barcheck failed at: 1/4
+  
+  | % 3
+C:/Users/kenva/School/blok13/design patterns/DPA_Startup_Musicsheets/Twee-emmertjes-water-halen.ly:47:3: warning: barcheck failed at: 1/2
+  
+  | % 8
+C:/Users/kenva/School/blok13/design patterns/DPA_Startup_Musicsheets/Twee-emmertjes-water-halen.ly:49:3: warning: barcheck failed at: 1/4
+  
+  | % 9
+C:/Users/kenva/School/blok13/design patterns/DPA_Startup_Musicsheets/Twee-emmertjes-water-halen.ly:53:3: warning: barcheck failed at: 1/2
+  
+  | % 11
+[8]
+C:/Users/kenva/School/blok13/design patterns/DPA_Startup_Musicsheets/Twee-emmertjes-water-halen.ly:59:3: warning: barcheck failed at: 1/4
+  
+  | % 18
+[16][24][32][40]
+Preprocessing graphical objects...
+Interpreting music...
+C:/Users/kenva/School/blok13/design patterns/DPA_Startup_Musicsheets/Twee-emmertjes-water-halen.ly:37:3: warning: barcheck failed at: 1/2
+  
+  | % 2
+C:/Users/kenva/School/blok13/design patterns/DPA_Startup_Musicsheets/Twee-emmertjes-water-halen.ly:39:3: warning: barcheck failed at: 1/4
+  
+  | % 3
+C:/Users/kenva/School/blok13/design patterns/DPA_Startup_Musicsheets/Twee-emmertjes-water-halen.ly:47:3: warning: barcheck failed at: 1/2
+  
+  | % 8
+C:/Users/kenva/School/blok13/design patterns/DPA_Startup_Musicsheets/Twee-emmertjes-water-halen.ly:49:3: warning: barcheck failed at: 1/4
+  
+  | % 9
+C:/Users/kenva/School/blok13/design patterns/DPA_Startup_Musicsheets/Twee-emmertjes-water-halen.ly:53:3: warning: barcheck failed at: 1/2
+  
+  | % 11
+C:/Users/kenva/School/blok13/design patterns/DPA_Startup_Musicsheets/Twee-emmertjes-water-halen.ly:59:3: warning: barcheck failed at: 1/4
+  
+  | % 18
+MIDI output to `/Users/kenva/School/blok13/design patterns/DPA_Startup_Musicsheets/Twee-emmertjes-water-halen.mid'...
+Finding the ideal number of pages...
+Fitting music on 1 page...
+Drawing systems...
+Layout output to `/Users/kenva/School/blok13/design patterns/DPA_Startup_Musicsheets/Twee-emmertjes-water-halen.ps'...
+Converting to `/Users/kenva/School/blok13/design patterns/DPA_Startup_Musicsheets/Twee-emmertjes-water-halen.pdf'...
+Success: compilation successfully completed
