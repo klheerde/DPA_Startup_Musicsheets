@@ -32,7 +32,7 @@ namespace DPA_Musicsheets.SanfordAdapter
                         string tone = note.Tone.ToString(); //default ToString("G");
                         int octave = note.Octave;
                         int raise = note.Raise;
-                        symbol = new Note(tone, raise, octave, duration, NoteStemDirection.Up, NoteTieType.None, new List<NoteBeamType>() { NoteBeamType.Start, NoteBeamType.Start });
+                        symbol = new Note(tone, raise, octave, duration, NoteStemDirection.Up, NoteTieType.None, new List<NoteBeamType>() { NoteBeamType.Single });
                     }
                     viewer.AddMusicalSymbol(symbol);
                 }

@@ -13,13 +13,12 @@ namespace DPA_Musicsheets.SanfordAdapter
         public ObservableCollection<string> Messages { get; private set; }
 
 
-        public string TrackName { get; set; }
         public Track Track { get; private set; }
+        public string TrackName { get { return Track.Name; } }
 
         public TrackViewModel(Track track)
         {
             Messages = new ObservableCollection<string>();
-            TrackName = track.Name;
             Track = track;
             Process();
         }

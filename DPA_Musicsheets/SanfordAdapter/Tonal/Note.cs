@@ -116,12 +116,12 @@ namespace DPA_Musicsheets.SanfordAdapter.Tonal
                 
                 double percentageOfBeatNote = (double)buildee.Duration / (double)timeSignature[2]; //ticksPerBeat
                 double percentageOfWholeNote = (1.0 / timeSignature[1]) * percentageOfBeatNote;
-                for (int noteLength = 32; noteLength >= 1; noteLength /= 2)
+                for (int noteLength = 1; noteLength <= 32; noteLength *= 2)
                 {
                     double absoluteNoteLength = (1.0 / noteLength);
-                    if (percentageOfWholeNote <= absoluteNoteLength)
+                    if (percentageOfWholeNote >= absoluteNoteLength)
                     {
-                        buildee.dotted = absoluteNoteLength * 1.5 == percentageOfBeatNote;
+                        buildee.dotted = absoluteNoteLength * 1.5 == percentageOfWholeNote;
                         buildee.count = noteLength;
                         return this;
                     }

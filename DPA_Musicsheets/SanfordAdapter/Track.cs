@@ -116,7 +116,6 @@ namespace DPA_Musicsheets.SanfordAdapter
                             switch (metaMessage.MetaType)
                             {
                                 case MetaType.Tempo:
-                                    //TODO timesig per trackpart from controltrack
                                     ////TODO  0.25 = 1 / timeSignature[0] ?
                                     //double quarterToSig1 = 4 / countsPerBeat;
                                     //double tickPerSig1 = song.Sequence.Division * quarterToSig1;
