@@ -38,7 +38,7 @@ namespace DPA_Musicsheets
 
         private void btnOpen_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog() { Filter = "Midi Files(.mid)|*.mid" };
+            OpenFileDialog openFileDialog = new OpenFileDialog() { Filter = "Midi Files (.mid)|*.mid|Lilypond Files (.ly)|*.ly" };
 
             if (openFileDialog.ShowDialog() == true)
             {
@@ -47,7 +47,10 @@ namespace DPA_Musicsheets
                 //NOTE: show the selected file in textbox
                 txt_MidiFilePath.Text = filePath;
 
-                song = MidiReader.ReadMidi(filePath);
+                if (filePath.EndsWith(".mid"))
+                    song = MidiReader.ReadMidi(filePath);
+                else
+                    song = MidiReader.ReadLily(filePath);
                 ShowTracks();
             }
         }

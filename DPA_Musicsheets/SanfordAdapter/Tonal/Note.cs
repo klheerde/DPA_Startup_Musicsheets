@@ -87,23 +87,8 @@ namespace DPA_Musicsheets.SanfordAdapter.Tonal
                 buildee.StartTime = start;
                 return this;
             }
-            //public Builder AddEnd(int end, TrackPart trackPart)
-            //{
-            //    double percentageOfBeatNote = song.NoteDurationInCounts(buildee);
-            //    double percentageOfWholeNote = (1.0 / timeSignature[1]) * percentageOfBeatNote;
-            //    for (int noteLength = 32; noteLength >= 1; noteLength /= 2)
-            //    {
-            //        double absoluteNoteLength = (1.0 / noteLength);
-            //        if (percentageOfWholeNote <= absoluteNoteLength)
-            //        {
-            //            buildee.dotted = absoluteNoteLength * 1.5 == percentageOfBeatNote;
-            //            buildee.count = noteLength;
-            //            return this;
-            //        }
-            //    }
 
-            //    return this;
-            //}
+            //TODO change Song to TrackPart or parent reference in Note. Use TrackPart in Builder contructor as parent (force)
             public Builder AddEnd(int end, Song song)
             {
                 buildee.EndTime = end;
