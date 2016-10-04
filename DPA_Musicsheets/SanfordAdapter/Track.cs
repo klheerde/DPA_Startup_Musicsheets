@@ -54,7 +54,7 @@ namespace DPA_Musicsheets.SanfordAdapter
                         int[] timeSignature = songBuilder.Build().TimeSignature(startTime);
                         trackPartBuilder = new TrackPart.Builder()
                             .AddStartTime(startTime)
-                            .AddTimeSignature(timeSignature[0], timeSignature[1]);
+                            .AddTimeSignature(timeSignature[0], timeSignature[1], timeSignature[2]);
                         AddTrackPart(trackPartBuilder.Build());
                         currentTrackPart++;
                     }
@@ -74,6 +74,26 @@ namespace DPA_Musicsheets.SanfordAdapter
                                     .AddStart(midiEvent.AbsoluteTicks);
 
                                 pending.Add(noteBuilder);
+
+                                if (midiEvent.AbsoluteTicks > currentTime)
+                                {
+                                    Note rest = new Note.Builder()
+                                        .AddStart(currentTime)
+                                        .AddEnd(midiEvent.AbsoluteTicks, songBuilder.Build())
+                                        .Build();
+
+                                    trackPartBuilder.AddNote(rest);
+                                }
+                                //TODO use DeltaTicks:
+                                //if (midiEvent.DeltaTicks > 0) //rest
+                                //{
+                                //    Note rest = new Note.Builder()
+                                //        .AddStart(midiEvent.AbsoluteTicks)
+                                //        .AddDuration(midiEvent.DeltaTicks)
+                                //        .Build();
+                                //    track.AddNote(rest);
+                                //}
+
                             }
                             else //NOTE: end of note
                             {
@@ -83,17 +103,6 @@ namespace DPA_Musicsheets.SanfordAdapter
                                 noteBuilder.AddEnd(midiEvent.AbsoluteTicks, songBuilder.Build());
                                 trackPartBuilder.AddNote(noteBuilder.Build());
                                 pending.Remove(noteBuilder);
-
-                                //TODO rests
-                                //if (midiEvent.DeltaTicks > 0) //rest
-                                //{
-                                //    Note rest = new Note.Builder()
-                                //        .AddStart(midiEvent.AbsoluteTicks)
-                                //        .AddDuration(midiEvent.DeltaTicks)
-                                //        .Build();
-
-                                //    track.AddNote(rest);
-                                //}
                             }
                             
                             //TODO could cause issues because current time = AbsoluteTicks + noteLength

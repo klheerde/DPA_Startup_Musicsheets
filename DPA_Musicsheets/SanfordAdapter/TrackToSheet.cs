@@ -18,8 +18,22 @@ namespace DPA_Musicsheets.SanfordAdapter
             //only show first for now.
             foreach (TrackPart trackPart in track.Parts)
             {
+                int timeSig0 = trackPart.TimeSignature(0);
+                int timeSig1 = trackPart.TimeSignature(1);
+                int ticksPerBeat = trackPart.TimeSignature(2);
+                int ticksPerBar = ticksPerBeat * timeSig0;
+                
+                viewer.AddMusicalSymbol(new TimeSignature(TimeSignatureType.Numbers, (uint) timeSig0, (uint) timeSig1));
+
+                int currentCount = 0;
                 foreach (Tonal.Note note in trackPart.Notes)
                 {
+                    if (currentCount >= ticksPerBar)
+                    {
+                        viewer.AddMusicalSymbol(new Barline());
+                        currentCount = 0;
+                    }
+
                     MusicalSymbol symbol;
                     MusicalSymbolDuration duration = (MusicalSymbolDuration)note.Count;
 
@@ -30,11 +44,17 @@ namespace DPA_Musicsheets.SanfordAdapter
                     else
                     {
                         string tone = note.Tone.ToString(); //default ToString("G");
-                        int octave = note.Octave;
+                        int octave = note.Octave - 1; //centering octave
                         int raise = note.Raise;
-                        symbol = new Note(tone, raise, octave, duration, NoteStemDirection.Up, NoteTieType.None, new List<NoteBeamType>() { NoteBeamType.Single });
+                        symbol = new Note(tone, raise, octave, duration, NoteStemDirection.Up, NoteTieType.None, new List<NoteBeamType>() { NoteBeamType.Single })
+                        {
+                            //TODO multiple dots
+                            NumberOfDots = note.Dotted ? 1 : 0
+                        };
                     }
+
                     viewer.AddMusicalSymbol(symbol);
+                    currentCount += note.Duration;
                 }
             }
 

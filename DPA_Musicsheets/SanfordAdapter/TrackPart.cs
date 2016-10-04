@@ -12,7 +12,7 @@ namespace DPA_Musicsheets.SanfordAdapter
         public List<Note> Notes { get; private set; }
 
         public int StartTime { get; private set; }
-        private int[] timeSignature = new int[2];
+        private int[] timeSignature = new int[3];
         public int TimeSignature(int i) { return timeSignature[i]; }
 
         
@@ -45,10 +45,11 @@ namespace DPA_Musicsheets.SanfordAdapter
                 return this;
             }
 
-            public Builder AddTimeSignature(int amountInBar, int countsPerBeat)
+            public Builder AddTimeSignature(int amountInBar, int countsPerBeat, int ticksPerBeat)
             {
                 buildee.timeSignature[0] = amountInBar;
                 buildee.timeSignature[1] = countsPerBeat;
+                buildee.timeSignature[2] = ticksPerBeat;
                 return this;
             }
 

@@ -61,7 +61,7 @@ namespace DPA_Musicsheets.SanfordAdapter
 
             public Builder AddTimeSignature(int startTime, int amountPerBar, int countsPerbeat)
             { 
-                double quarterToSig1 = 4 / countsPerbeat;
+                double quarterToSig1 = 4.0 / countsPerbeat;
                 double tickPerSig1 = buildee.Sequence.Division * quarterToSig1;
                 //int ticksPerBeat = (int)(tickPerSig1 * amountPerBar);
                 buildee.timeSignaturesByStartTimes.Add(startTime, new int[]{amountPerBar, countsPerbeat, (int)tickPerSig1/*ticksPerBeat */});

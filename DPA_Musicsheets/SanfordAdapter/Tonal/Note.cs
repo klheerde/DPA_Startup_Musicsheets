@@ -129,11 +129,11 @@ namespace DPA_Musicsheets.SanfordAdapter.Tonal
 
                 return this;
             }
-            public Builder AddDuration(int duration)
-            {
-                buildee.Duration = duration;
-                return this;
-            }
+            //public Builder AddDuration(int duration)
+            //{
+            //    buildee.Duration = duration;
+            //    return this;
+            //}
             public Builder AddCount(int count)
             {
                 buildee.count = count;
