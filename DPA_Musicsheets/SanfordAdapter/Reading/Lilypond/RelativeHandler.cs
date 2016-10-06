@@ -11,17 +11,22 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond
     {
         public Song Handle(ArraySegment<string> allWordsIncludingKeyword, Song.Builder songBuilder)
         {
-            int currentIndex = allWordsIncludingKeyword.Offset;
+            Track.Builder trackBuilder = new Track.Builder();
+            songBuilder.AddTrackBuilder(trackBuilder);
+
+            int currentIndex = 0;
             string currentWord = allWordsIncludingKeyword.ElementAt(currentIndex++);
-            Regex noteRegex = NoteHandler.REGEX;
+            Regex noteRegex = new Regex(NoteHandler.REGEXSTRING);
             if (noteRegex.Match(currentWord).Success)
             {
-                //TODO figure out what to do
+                //TODO figure out what to do, maybe CurrentTrackBuilder.key-ish?
                 currentWord = allWordsIncludingKeyword.ElementAt(currentIndex++);
             }
 
+            int offset = allWordsIncludingKeyword.Offset + currentIndex;
+            int count = allWordsIncludingKeyword.Count - offset - 1;
+            ArraySegment<string> segment = new ArraySegment<string>(allWordsIncludingKeyword.Array, offset, count);
             LilypondReader reader = MusicReader.Singleton.Readers["ly"] as LilypondReader;
-            ArraySegment<string> segment = new ArraySegment<string>(allWordsIncludingKeyword.Array, currentIndex, allWordsIncludingKeyword.Count - currentIndex - 1);
             return reader.ReadWords(segment, songBuilder);
         }
     }

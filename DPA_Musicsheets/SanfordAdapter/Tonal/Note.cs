@@ -82,6 +82,18 @@ namespace DPA_Musicsheets.SanfordAdapter.Tonal
                 buildee.raise = raise;
                 return this;
             }
+
+            public Builder AddTone(Tone tone)
+            {
+                buildee.tone = tone;
+                return this;
+            }
+            public Builder AddRaise(int raise)
+            {
+                buildee.raise = raise;
+                return this;
+            }
+
             public Builder AddStart(int start)
             {
                 buildee.StartTime = start;
@@ -130,7 +142,7 @@ namespace DPA_Musicsheets.SanfordAdapter.Tonal
                 return this;
             }
 
-            public Note Build()
+            public Note GetItem()
             {
                 return buildee;
             }

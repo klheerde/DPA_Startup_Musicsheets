@@ -53,7 +53,7 @@ namespace DPA_Musicsheets.SanfordAdapter
                 return this;
             }
 
-            public TrackPart Build()
+            public TrackPart GetItem()
             {
                 return buildee;
             }

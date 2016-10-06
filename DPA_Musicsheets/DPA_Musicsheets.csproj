@@ -69,6 +69,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="SanfordAdapter\Reading\IMusicReader.cs" />
+    <Compile Include="SanfordAdapter\Reading\Lilypond\TimeHandler.cs" />
     <Compile Include="SanfordAdapter\Reading\Lilypond\NoteHandler.cs" />
     <Compile Include="SanfordAdapter\Reading\Lilypond\RelativeHandler.cs" />
     <Compile Include="SanfordAdapter\Reading\Lilypond\TempoHandler.cs" />

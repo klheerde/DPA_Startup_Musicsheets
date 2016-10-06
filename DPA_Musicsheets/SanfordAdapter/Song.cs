@@ -39,7 +39,10 @@ namespace DPA_Musicsheets.SanfordAdapter
         public class Builder : IBuilder<Song>
         {
             private Song buildee;
-            public Track.Builder CurrentTrackBuilder { get; private set; }
+
+            private int currentTrackBuilderIndex = -1;
+            private List<Track.Builder> trackBuilders = new List<Track.Builder>();
+            public Track.Builder CurrentTrackBuilder { get { return trackBuilders.ElementAt(currentTrackBuilderIndex); } }
 
             public Builder() : this(new Song()) { }
             public Builder(Song song) : this(song, null) { }
@@ -55,7 +58,7 @@ namespace DPA_Musicsheets.SanfordAdapter
             public Builder AddSequence(Sequence sequence)
             {
                 for (int i = 0; i < sequence.Count; i++)
-                    buildee.Tracks.Add(new Track.Builder(this, sequence[i]).Build());
+                    buildee.Tracks.Add(new Track.Builder(this, sequence[i]).GetItem());
                 return this;
             }
 
@@ -74,46 +77,14 @@ namespace DPA_Musicsheets.SanfordAdapter
                 return this;
             }
 
-            //public Builder SetMetaData(MetaMessage metaMessage)
-            //{
-            //    byte[] bytes = metaMessage.GetBytes();
+            public Builder AddTrackBuilder(Track.Builder trackBuilder)
+            {
+                trackBuilders.Add(trackBuilder);
+                currentTrackBuilderIndex++;
+                return this;
+            }
 
-            //    switch (metaMessage.MetaType)
-            //    {
-            //        case MetaType.Tempo:
-            //            // Bitshifting is nodig om het tempo in BPM te be
-            //            int tempo = (bytes[0] & 0xff) << 16 | (bytes[1] & 0xff) << 8 | (bytes[2] & 0xff);
-            //            buildee.bpm = 60000000 / tempo;
-            //            break;
-            //        //case MetaType.SmpteOffset:
-            //        //    break;
-            //        case MetaType.TimeSignature:
-            //            if (buildee.timeSignature[0] != 0)
-            //                return this;
-            //            //NOTE: kwart = 1 / 0.25 = 4
-            //            buildee.timeSignature[0] = bytes[0];
-            //            buildee.timeSignature[1] = (int)Math.Pow(2, bytes[1]);
-            //            //TODO  0.25 = 1 / timeSignature[0] ?
-            //            double quarterToSig1 = 4 / buildee.TimeSignature(1);
-            //            double tickPerSig1 = buildee.Sequence.Division * quarterToSig1;
-            //            buildee.ticksPerBeat = (int)(tickPerSig1 * buildee.timeSignature[0]);
-            //        break;
-            //        //case MetaType.KeySignature:
-            //        //    break;
-            //        //case MetaType.ProprietaryEvent:
-            //        //    break;
-            //        //case MetaType.TrackName:
-            //        //    name = Encoding.Default.GetString(bytes);
-            //        //    break;
-            //        default:
-            //            //return metaMessage.MetaType + ": " + Encoding.Default.GetString(metaMessage.GetBytes());
-            //            break;
-            //    }
-
-            //    return this;
-            //}
-
-            public Song Build()
+            public Song GetItem()
             {
                 return buildee;
             }

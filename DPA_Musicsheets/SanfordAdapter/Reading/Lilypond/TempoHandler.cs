@@ -10,13 +10,13 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond
     {
         public Song Handle(ArraySegment<string> allWordsAfterKeyword, Song.Builder songBuilder)
         {
-            string tempoString = allWordsAfterKeyword.Array[allWordsAfterKeyword.Offset + 2];
+            string tempoString = allWordsAfterKeyword.ElementAt(2); //does offset + n
 
             int tempo;
             if (Int32.TryParse(tempoString, out tempo))
                 songBuilder.AddTempo(tempo);
 
-            return songBuilder.Build();
+            return songBuilder.GetItem();
         }
     }
 }

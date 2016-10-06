@@ -22,6 +22,8 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond
 
             handlers.Add(new Regex(@"\\relative"), new TempoHandler());
             handlers.Add(new Regex(@"\\tempo"), new RelativeHandler());
+            handlers.Add(new Regex(@"\\time"), new TimeHandler());
+            handlers.Add(new Regex(NoteHandler.REGEXSTRING), new NoteHandler());
         }
 
         public Song Read(string filePath)
@@ -55,7 +57,7 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond
                 index++;
             }
 
-            Song song = songBuilder.Build();
+            Song song = songBuilder.GetItem();
             song.CreateSequence();
             return song;
         }

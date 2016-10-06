@@ -8,6 +8,6 @@ namespace DPA_Musicsheets.SanfordAdapter
 {
     interface IBuilder<T>
     {
-        T Build();
+        T GetItem();
     }
 }
