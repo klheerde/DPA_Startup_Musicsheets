@@ -68,10 +68,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="SanfordAdapter\Reading\IMusicReader.cs" />
+    <Compile Include="SanfordAdapter\Reading\Lilypond\NoteHandler.cs" />
+    <Compile Include="SanfordAdapter\Reading\Lilypond\RelativeHandler.cs" />
+    <Compile Include="SanfordAdapter\Reading\Lilypond\TempoHandler.cs" />
+    <Compile Include="SanfordAdapter\Reading\MusicReader.cs" />
+    <Compile Include="SanfordAdapter\Reading\Lilypond\IHandler.cs" />
+    <Compile Include="SanfordAdapter\Reading\Lilypond\LilypondReader.cs" />
     <Compile Include="SanfordAdapter\Tonal\Chord.cs" />
     <Compile Include="SanfordAdapter\Tonal\_Rest.cs" />
     <Compile Include="SanfordAdapter\IBuilder.cs" />
-    <Compile Include="SanfordAdapter\MidiReader.cs" />
+    <Compile Include="SanfordAdapter\Reading\Midi\MidiReader.cs" />
     <Compile Include="SanfordAdapter\Tonal\Note.cs" />
     <Compile Include="SanfordAdapter\Player.cs" />
     <Compile Include="SanfordAdapter\Song.cs" />
@@ -123,6 +130,7 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

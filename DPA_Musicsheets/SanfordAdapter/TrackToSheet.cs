@@ -1,5 +1,7 @@
 ﻿using PSAMControlLibrary;
 using PSAMWPFControlLibrary;
+using Sanford.Multimedia.Midi;
+using TrackX = Sanford.Multimedia.Midi.Track;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,8 +24,8 @@ namespace DPA_Musicsheets.SanfordAdapter
                 int timeSig1 = trackPart.TimeSignature(1);
                 int ticksPerBeat = trackPart.TimeSignature(2);
                 int ticksPerBar = ticksPerBeat * timeSig0;
-                
-                viewer.AddMusicalSymbol(new TimeSignature(TimeSignatureType.Numbers, (uint) timeSig0, (uint) timeSig1));
+
+                viewer.AddMusicalSymbol(new TimeSignature(TimeSignatureType.Numbers, (uint)timeSig0, (uint)timeSig1));
 
                 int currentCount = 0;
                 foreach (Tonal.Note note in trackPart.Notes)

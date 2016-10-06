@@ -10,37 +10,37 @@ namespace DPA_Musicsheets.SanfordAdapter
 {
     public class Song
     {
-        private Sequence sequence;
-
-        //private int ticksPerBeat;
+        public Sequence Sequence { get; private set; }
 
         private Dictionary<int, int[]> timeSignaturesByStartTimes = new Dictionary<int, int[]>();
         public int[] TimeSignatureStartTimes { get { return timeSignaturesByStartTimes.Keys.ToArray(); } }
         public int[] TimeSignature(int startTime) { return timeSignaturesByStartTimes[startTime]; }
-
-    
         public int Tempo { get; private set; }
 
-        private List<Track> tracks = new List<Track>();
-
-        private Song() { }
-        public Song(Sequence sequence)
+        public List<Track> Tracks { get; private set; }
+    
+        public Song()
         {
-            this.sequence = sequence;
+            Tracks = new List<Track>();
+        }
+        public Song(Sequence sequence) : this()
+        {
+            Sequence = sequence;
             //ticksPerBeat = sequence.Division;
             //ticksPerBeat = (int)(sequence.Division * (noteLength / 0.25));
         }
 
-        //TODO cleaner
-        public void AddTrack(Track track) { tracks.Add(track); }
-        public Track GetTrack(int index) { return tracks[index]; }
-        public int TrackCount { get { return tracks.Count; } }
-        //public int TimeSignature(int i) { return timeSignature[i]; }
-        public Sequence Sequence { get { return sequence; } }
+        public Sequence CreateSequence()
+        {
+            return new Sequence();
+        }
+
 
         public class Builder : IBuilder<Song>
         {
             private Song buildee;
+            public Track.Builder CurrentTrackBuilder { get; private set; }
+
             public Builder() : this(new Song()) { }
             public Builder(Song song) : this(song, null) { }
             public Builder (Sequence sequence) : this(new Song(sequence), sequence) { }
@@ -55,7 +55,7 @@ namespace DPA_Musicsheets.SanfordAdapter
             public Builder AddSequence(Sequence sequence)
             {
                 for (int i = 0; i < sequence.Count; i++)
-                    buildee.AddTrack(new Track.Builder(this, sequence[i]).Build());
+                    buildee.Tracks.Add(new Track.Builder(this, sequence[i]).Build());
                 return this;
             }
 

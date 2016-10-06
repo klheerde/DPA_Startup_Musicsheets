@@ -1,5 +1,5 @@
 ﻿using DPA_Musicsheets.SanfordAdapter;
-using DPA_Musicsheets.SanfordAdapter.Tonal;
+using DPA_Musicsheets.SanfordAdapter.Reading;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -47,26 +47,21 @@ namespace DPA_Musicsheets
                 //NOTE: show the selected file in textbox
                 txt_MidiFilePath.Text = filePath;
 
-                if (filePath.EndsWith(".mid"))
-                    song = MidiReader.ReadMidi(filePath);
-                else
-                    song = MidiReader.ReadLily(filePath);
+                song = MusicReader.Singleton.Read(filePath);
                 ShowTracks();
             }
         }
 
         private void ShowTracks()
         {
-            Track t = song.GetTrack(1);
             ShowMidiTracks();
         }
 
         private void ShowMidiTracks()
         {
             trackViewModels.Clear();
-            for (int i = 0; i < song.TrackCount; i++)
+            foreach (Track track in song.Tracks)
             {
-                Track track = song.GetTrack(i);
                 TrackViewModel viewModel = new TrackViewModel(track);
                 trackViewModels.Add(viewModel);
             }
