@@ -69,12 +69,15 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="SanfordAdapter\Reading\IMusicReader.cs" />
-    <Compile Include="SanfordAdapter\Reading\Lilypond\TimeHandler.cs" />
-    <Compile Include="SanfordAdapter\Reading\Lilypond\NoteHandler.cs" />
-    <Compile Include="SanfordAdapter\Reading\Lilypond\RelativeHandler.cs" />
-    <Compile Include="SanfordAdapter\Reading\Lilypond\TempoHandler.cs" />
+    <Compile Include="SanfordAdapter\Reading\Lilypond\Handling\AlternativeHandler.cs" />
+    <Compile Include="SanfordAdapter\Reading\Lilypond\Handling\RepeatHandler.cs" />
+    <Compile Include="SanfordAdapter\Reading\Lilypond\Handling\TimeHandler.cs" />
+    <Compile Include="SanfordAdapter\Reading\Lilypond\Handling\NoteHandler.cs" />
+    <Compile Include="SanfordAdapter\Reading\Lilypond\Handling\RelativeHandler.cs" />
+    <Compile Include="SanfordAdapter\Reading\Lilypond\Handling\TempoHandler.cs" />
+    <Compile Include="SanfordAdapter\Reading\Lilypond\LilypondArraySegment.cs" />
     <Compile Include="SanfordAdapter\Reading\MusicReader.cs" />
-    <Compile Include="SanfordAdapter\Reading\Lilypond\IHandler.cs" />
+    <Compile Include="SanfordAdapter\Reading\Lilypond\Handling\IHandler.cs" />
     <Compile Include="SanfordAdapter\Reading\Lilypond\LilypondReader.cs" />
     <Compile Include="SanfordAdapter\Tonal\Chord.cs" />
     <Compile Include="SanfordAdapter\Tonal\_Rest.cs" />

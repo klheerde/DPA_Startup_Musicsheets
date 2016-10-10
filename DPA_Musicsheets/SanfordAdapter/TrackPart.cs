@@ -10,6 +10,7 @@ namespace DPA_Musicsheets.SanfordAdapter
     public class TrackPart
     {
         public List<Note> Notes { get; private set; }
+        public List<List<Note>> Alternatives { get; private set; }
 
         public int StartTime { get; private set; }
         private int[] timeSignature = new int[3];
@@ -21,21 +22,47 @@ namespace DPA_Musicsheets.SanfordAdapter
         public TrackPart()
         {
             Notes = new List<Note>();
+            Alternatives = new List<List<Note>>();
         }
 
 
         public class Builder : IBuilder<TrackPart>
         {
             private TrackPart buildee;
+            public int BaseOctave { get; private set; }
+            public Note LastAddedNote { get; private set; }
+
             public Builder() : this(new TrackPart()) { }
             public Builder(TrackPart buildee)
             {
                 this.buildee = buildee;
             }
 
+            public Builder AddRepeat(int repeat)
+            {
+                buildee.Repeat = repeat;
+                return this;
+            }
+
+            public Builder AddBaseOctave(int baseOctave)
+            {
+                BaseOctave = baseOctave;
+                return this;
+            }
+
             public Builder AddNote(Note note)
             {
-                buildee.Notes.Add(note);
+                if (buildee.Alternatives.Count > 0)
+                    buildee.Alternatives.Last().Add(note);
+                else
+                    buildee.Notes.Add(note);
+                LastAddedNote = note;
+                return this;
+            }
+
+            public Builder AddAlternative()
+            {
+                buildee.Alternatives.Add(new List<Note>());
                 return this;
             }
 

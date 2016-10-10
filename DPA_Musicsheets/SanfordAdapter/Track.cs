@@ -28,21 +28,14 @@ namespace DPA_Musicsheets.SanfordAdapter
             public TrackPart.Builder CurrentTrackPartBuilder { get { return trackPartBuilders.ElementAt(currentTrackPartBuilderIndex); } }
 
             public Builder() : this(new Track()) { }
-            public Builder(Track track) : this(track, null, null) { }
-            public Builder(Song.Builder songBuilder) : this(new Track(), songBuilder, null) { }
-            public Builder(SanfordTrack convert) : this(new Track(), null, convert) { }
-            public Builder(Song.Builder songBuilder, SanfordTrack convert) : this(new Track(), songBuilder, convert) { }
-            public Builder(Track track, Song.Builder songBuilder, SanfordTrack convert)
+            public Builder(Track buildee)
             {
-                buildee = track;
-                if (convert == null)
-                    return;
-                AddSanfordTrack(songBuilder, convert);
+                this.buildee = buildee;
             }
 
             public Builder AddSanfordTrack(Song.Builder songBuilder, SanfordTrack convert)
             {
-                TrackPart.Builder trackPartBuilder = null; //force the below if statement to create trackPartBuilder.
+                TrackPart.Builder trackPartBuilder = null; //force the below if-statement to create trackPartBuilder.
                 List<Note.Builder> pending = new List<Note.Builder>();
 
                 int currentTrackPart = 0;
@@ -156,12 +149,20 @@ namespace DPA_Musicsheets.SanfordAdapter
                 return this;
             }
 
+            public Builder AddTrackPartBuilder(TrackPart.Builder trackPartBuilder)
+            {
+                AddTrackPart(trackPartBuilder.GetItem());
+                trackPartBuilders.Add(trackPartBuilder);
+                currentTrackPartBuilderIndex++;
+                return this;
+            }
+
             public Builder AddTrackPart(TrackPart trackPart)
             {
                 buildee.Parts.Add(trackPart);
                 return this;
             }
-            
+
             public Track GetItem()
             {
                 return buildee;

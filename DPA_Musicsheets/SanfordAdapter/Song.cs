@@ -45,27 +45,24 @@ namespace DPA_Musicsheets.SanfordAdapter
             public Track.Builder CurrentTrackBuilder { get { return trackBuilders.ElementAt(currentTrackBuilderIndex); } }
 
             public Builder() : this(new Song()) { }
-            public Builder(Song song) : this(song, null) { }
-            public Builder (Sequence sequence) : this(new Song(sequence), sequence) { }
-            public Builder(Song song, Sequence sequence)
+            public Builder(Song song)
             {
                 buildee = song;
-                if (sequence == null)
-                    return;
-                AddSequence(sequence);
             }
 
             public Builder AddSequence(Sequence sequence)
             {
+                buildee.Sequence = sequence;
                 for (int i = 0; i < sequence.Count; i++)
-                    buildee.Tracks.Add(new Track.Builder(this, sequence[i]).GetItem());
+                    buildee.Tracks.Add(new Track.Builder().AddSanfordTrack(this, sequence[i]).GetItem());
                 return this;
             }
 
             public Builder AddTimeSignature(int startTime, int amountPerBar, int countsPerbeat)
             { 
                 double quarterToSig1 = 4.0 / countsPerbeat;
-                double tickPerSig1 = buildee.Sequence.Division * quarterToSig1;
+                //TODO handle without sequence
+                double tickPerSig1 = buildee.Sequence == null ? 0 : buildee.Sequence.Division * quarterToSig1;
                 //int ticksPerBeat = (int)(tickPerSig1 * amountPerBar);
                 buildee.timeSignaturesByStartTimes.Add(startTime, new int[]{amountPerBar, countsPerbeat, (int)tickPerSig1/*ticksPerBeat */});
                 return this;
@@ -79,6 +76,7 @@ namespace DPA_Musicsheets.SanfordAdapter
 
             public Builder AddTrackBuilder(Track.Builder trackBuilder)
             {
+                buildee.Tracks.Add(trackBuilder.GetItem());
                 trackBuilders.Add(trackBuilder);
                 currentTrackBuilderIndex++;
                 return this;

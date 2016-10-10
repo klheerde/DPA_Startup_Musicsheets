@@ -1,4 +1,5 @@
-﻿using Sanford.Multimedia.Midi;
+﻿using DPA_Musicsheets.SanfordAdapter.Reading.Lilypond.Handling;
+using Sanford.Multimedia.Midi;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,53 +14,50 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond
     {
         //private static string[] keywords = { "\\relative", "\\clef", "\\tempo", "\\time", "\\repeat", "\\alternative", "treble", "|" };
 
-        private Dictionary<Regex, IHandler> handlers;
-        private string[] delimiters = { " ", "\r\n" };
-        
-        private void Init()
-        {
-            handlers = new Dictionary<Regex, IHandler>();
+        private Dictionary<Regex, IHandler> handlers = new Dictionary<Regex, IHandler>();
 
-            handlers.Add(new Regex(@"\\relative"), new TempoHandler());
-            handlers.Add(new Regex(@"\\tempo"), new RelativeHandler());
-            handlers.Add(new Regex(@"\\time"), new TimeHandler());
+        public LilypondReader()
+        {
+            //TODO new trackpart on '{'
+            handlers.Add(new Regex(@"^\\relative$"), new RelativeHandler());
+            handlers.Add(new Regex(@"^\\alternative$"), new AlternativeHandler());
+            handlers.Add(new Regex(@"^\\tempo$"), new TempoHandler());
+            handlers.Add(new Regex(@"^\\time$"), new TimeHandler());
+            handlers.Add(new Regex(@"^\\repeat$"), new RelativeHandler());
             handlers.Add(new Regex(NoteHandler.REGEXSTRING), new NoteHandler());
         }
 
+        private string[] delimiters = { " ", "\r\n" };
         public Song Read(string filePath)
         {
-            if (handlers == null)
-                Init();
-
             string text = System.IO.File.ReadAllText(filePath);
             string[] words = text.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
-            ArraySegment<string> segment = new ArraySegment<string>(words, 0, words.Count() - 1);
+            LilypondArraySegment segment = new LilypondArraySegment(words);
             Song.Builder songBuilder = new Song.Builder();
-            return ReadWords(segment, songBuilder);
-        }
 
-        public Song ReadWords(ArraySegment<string> words, Song.Builder songBuilder)
-        {
-            int index = words.Offset;
-
-            foreach (string word in words)
+            LilypondArraySegment.Enumerator enumerator = segment.GetEnumerator() as LilypondArraySegment.Enumerator;
+            while(enumerator.MoveNext())
             {
+                string word = enumerator.Current;
                 foreach (Regex regex in handlers.Keys)
                 {
                     if (regex.Match(word).Success)
                     {
-                        ArraySegment<string> segment = new ArraySegment<string>(words.Array, index, words.Count() - index - 1);
-                        handlers[regex].Handle(segment, songBuilder);
-                        break; //can not match multiple, go to next word
+                        //LilypondArraySegment segment = new LilypondArraySegment(words, index, words.Length - 1);
+                        IHandler handler = handlers[regex];
+                        handler.Handle(enumerator, segment, songBuilder);
+                        break;
                     }
                 }
 
-                index++;
+                //NOTE: indicates word has been handled.
+                segment.Start += 1;
+                //NOTE: CurrentIndex is auto incemented.
             }
 
             Song song = songBuilder.GetItem();
             song.CreateSequence();
-            return song;
+            return songBuilder.GetItem();
         }
     }
 }

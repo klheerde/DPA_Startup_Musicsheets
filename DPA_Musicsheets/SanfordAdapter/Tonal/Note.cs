@@ -6,52 +6,52 @@ using System.Threading.Tasks;
 
 namespace DPA_Musicsheets.SanfordAdapter.Tonal
 {
-    public enum Tone { C = 0, D = 2, E = 4, F = 5, G = 7, A = 9, B = 11, Rest = 13 /*Rest 13 outside octave scope*/ };
+    public enum Tone { C = 0, D = 2, E = 4, F = 5, G = 7, A = 9, B = 11, R = -1 /* Rest -1 outside octave scope */ };
 
     public class Note
     {
         private static readonly int VELOCITY = 90;
 
-        private int startTime;
-        private int duration;
-        private int count;
-        private bool dotted;
+        public Note()
+        {
+            Tone = Tone.R;
+            Velocity = VELOCITY;
+        }
 
-        //default rest unless added keycode
-        private int keycode = 13;
-        private int octave = 0;
-        private Tone tone = Tone.Rest;
-        private int raise = 0;
-
-        private int velocity = VELOCITY;
-
-        private Note() { }
-        public Note(int startTime, int duration)
+        public Note(int startTime, int duration) : this()
         {
             StartTime = startTime;
             Duration = duration;
         }
 
-        public int Keycode { get { return keycode; } }
-        public int Octave { get { return octave; } }
-        public Tone Tone { get { return tone; } }
-        public int Raise { get { return raise; } }
+        public int Keycode { get { return 12 * Octave + ((int) Tone > 0 ? (int) Tone : 0) + Raise; } }
+        public int Octave { get; private set; }
+        public Tone Tone { get; private set; }
+        public int Raise { get; private set; }
 
+        //TODO unnecessary?
+        private int startTime;
         public int StartTime {
             get { return startTime; }
             protected set { if (value >= 0) startTime = value; }
         }
+        //TODO unnecessary?
+        private int duration;
         public int Duration {
             get { return duration; }
             protected set { if (value > 0) duration = value; }
         }
+        //TODO unnecessary?
         public int EndTime {
             get { return StartTime + Duration; }
             set { if (value > StartTime) Duration = value - StartTime; }
         }
 
-        public int Count { get { return count; } }
-        public bool Dotted { get { return dotted; } }
+        public int Count { get; private set; }
+        //TODO make int Dots
+        public bool Dotted { get; private set; }
+
+        public int Velocity { get; private set; }
 
 
         public class Builder : IBuilder<Note>
@@ -76,21 +76,25 @@ namespace DPA_Musicsheets.SanfordAdapter.Tonal
                     raise++;
                 }
 
-                buildee.keycode = keycode;
-                buildee.octave = octave;
-                buildee.tone = (Tone) key;
-                buildee.raise = raise;
+                buildee.Octave = octave;
+                buildee.Tone = (Tone) key;
+                buildee.Raise = raise;
                 return this;
             }
 
             public Builder AddTone(Tone tone)
             {
-                buildee.tone = tone;
+                buildee.Tone = tone;
+                return this;
+            }
+            public Builder AddOctave(int octave)
+            {
+                buildee.Octave = octave;
                 return this;
             }
             public Builder AddRaise(int raise)
             {
-                buildee.raise = raise;
+                buildee.Raise = raise;
                 return this;
             }
 
@@ -118,8 +122,8 @@ namespace DPA_Musicsheets.SanfordAdapter.Tonal
                     double absoluteNoteLength = (1.0 / noteLength);
                     if (percentageOfWholeNote >= absoluteNoteLength)
                     {
-                        buildee.dotted = absoluteNoteLength * 1.5 == percentageOfWholeNote;
-                        buildee.count = noteLength;
+                        buildee.Dotted = absoluteNoteLength * 1.5 == percentageOfWholeNote;
+                        buildee.Count = noteLength;
                         return this;
                     }
                 }
@@ -133,12 +137,19 @@ namespace DPA_Musicsheets.SanfordAdapter.Tonal
             //}
             public Builder AddCount(int count)
             {
-                buildee.count = count;
+                buildee.Count = count;
                 return this;
             }
+
+            public Builder AddDots(int dots)
+            {
+                buildee.Dotted = dots > 0;
+                return this;
+            }
+
             public Builder AddVelocity(int velocity)
             {
-                buildee.velocity = velocity;
+                buildee.Velocity = velocity;
                 return this;
             }
 

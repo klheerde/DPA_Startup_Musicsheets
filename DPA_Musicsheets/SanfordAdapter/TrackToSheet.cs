@@ -39,7 +39,7 @@ namespace DPA_Musicsheets.SanfordAdapter
                     MusicalSymbol symbol;
                     MusicalSymbolDuration duration = (MusicalSymbolDuration)note.Count;
 
-                    if (note.Tone == Tonal.Tone.Rest)
+                    if (note.Tone == Tonal.Tone.R)
                     {
                         symbol = new Rest(duration);
                     }
