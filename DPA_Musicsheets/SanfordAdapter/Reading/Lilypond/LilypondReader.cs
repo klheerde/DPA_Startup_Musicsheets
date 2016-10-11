@@ -12,13 +12,13 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond
     //NOTE: is singleton
     class LilypondReader : IMusicReader
     {
-        //private static string[] keywords = { "\\relative", "\\clef", "\\tempo", "\\time", "\\repeat", "\\alternative", "treble", "|" };
+        //private static string[] keywords = { "\\clef", "\\alternative", "treble", "|" };
 
         private Dictionary<Regex, IHandler> handlers = new Dictionary<Regex, IHandler>();
 
         public LilypondReader()
         {
-            //TODO new trackpart on '{'
+            ////TODO new trackpart on '{'
             handlers.Add(new Regex(@"^\\relative$"), new RelativeHandler());
             handlers.Add(new Regex(@"^\\alternative$"), new AlternativeHandler());
             handlers.Add(new Regex(@"^\\tempo$"), new TempoHandler());

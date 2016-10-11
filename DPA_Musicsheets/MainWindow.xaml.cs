@@ -47,14 +47,10 @@ namespace DPA_Musicsheets
                 //NOTE: show the selected file in textbox
                 txt_MidiFilePath.Text = filePath;
 
+                editor.Text = System.IO.File.ReadAllText(filePath);
                 song = MusicReader.Singleton.Read(filePath);
-                ShowTracks();
+                ShowMidiTracks();
             }
-        }
-
-        private void ShowTracks()
-        {
-            ShowMidiTracks();
         }
 
         private void ShowMidiTracks()
@@ -68,9 +64,9 @@ namespace DPA_Musicsheets
             tabCtrl_MidiContent.SelectedIndex = 0;
         }
 
-        //TODO get rid of
-        private void btn_ShowContent_Click(object sender, RoutedEventArgs e)
-        { }
+        private void btnEdit_Click(object sender, RoutedEventArgs e)
+        {
+        }
         private void btnPlay_Click(object sender, RoutedEventArgs e)
         {
             if (player != null)

@@ -15,22 +15,15 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond.Handling
             string timeString = allWordsIncludingKeyword.ElementAt(1); //does offset + n
             string[] timeSigString = timeString.Split('/');
 
-            //TODO just throw if wrong
-            int timeSig0, timeSig1;
-            if (Int32.TryParse(timeSigString[0], out timeSig0) && Int32.TryParse(timeSigString[1], out timeSig1))
-            {
-                //Note lastAddedNote = songBuilder.CurrentTrackBuilder.CurrentTrackPartBuilder.LastAddedNote;
-                //int startTime = lastAddedNote == null ? 0 : lastAddedNote.StartTime;
-                //songBuilder.AddTimeSignature(startTime, timeSig0, timeSig1);
-                if (songBuilder.GetItem().Tempo > 0)
-                {
-                    int 
-                }
+            //NOTE: throws error if wrong.
+            int timeSig0 = Int32.Parse(timeSigString[0]);
+            int timeSig1 = Int32.Parse(timeSigString[1]);
 
-                songBuilder.CurrentTrackBuilder.CurrentTrackPartBuilder.AddTimeSignature(timeSig0, timeSig1, 0);
-            }
+            //NOTE: assume lilypond always has currentTrackPart.
+            //NOTE: using songBuilder.GetItem(), but song does not have Sequence so falls back to 384.
+            songBuilder.CurrentTrackBuilder.CurrentTrackPartBuilder.AddTimeSignature(timeSig0, timeSig1, songBuilder.GetItem());
 
-            //NOTE: skip one word extra. "\time 4/4" is two words, one already skipped in LyReader foreach
+            //NOTE: skip one word extra. "\time 4/4" is two words, one already skipped in LyReader foreach.
             allWordsIncludingKeyword.Start += 1;
             //NOTE: makes foreach skip "4/4" word.
             enumerator.CurrentIndex += 1;

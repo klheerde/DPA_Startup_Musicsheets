@@ -46,7 +46,8 @@ namespace DPA_Musicsheets.SanfordAdapter
 
             public Builder AddBaseOctave(int baseOctave)
             {
-                BaseOctave = baseOctave;
+                //TODO center octave from clef
+                BaseOctave = 3 + baseOctave;
                 return this;
             }
 
@@ -72,6 +73,20 @@ namespace DPA_Musicsheets.SanfordAdapter
                 return this;
             }
 
+            public Builder AddTimeSignature(int amountInBar, int countsPerBeat)
+            {
+                return AddTimeSignature(amountInBar, countsPerBeat, null);
+            }
+            //NOTE: not using song.TimeSignatureStartTimes...
+            public Builder AddTimeSignature(int amountInBar, int countsPerBeat, Song song)
+            {
+                double quarterToSig1 = 4.0 / countsPerBeat;
+                //NOTE: when added using lilypond fallback to default Sequence Division.
+                double division = song == null || song.Sequence == null ? Song.DEFAULT_DIVISION : song.Sequence.Division;
+                double ticksPerSig1 = division * quarterToSig1; //ticksPerBeat
+
+                return AddTimeSignature(amountInBar, countsPerBeat, (int) ticksPerSig1);
+            }
             public Builder AddTimeSignature(int amountInBar, int countsPerBeat, int ticksPerBeat)
             {
                 buildee.timeSignature[0] = amountInBar;
@@ -79,6 +94,7 @@ namespace DPA_Musicsheets.SanfordAdapter
                 buildee.timeSignature[2] = ticksPerBeat;
                 return this;
             }
+
 
             public TrackPart GetItem()
             {

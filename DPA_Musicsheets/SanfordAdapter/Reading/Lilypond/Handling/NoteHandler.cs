@@ -39,10 +39,12 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond.Handling
             int amountOctaveRaise = octaveUpString.Length - octaveDownString.Length;
 
             TrackPart.Builder trackPartBuilder = songBuilder.CurrentTrackBuilder.CurrentTrackPartBuilder;
+            TrackPart.Builder previousTrackPartBuilder = songBuilder.CurrentTrackBuilder.PreviousTrackPartBuilder;
 
             //TODO if /relative octave by previous note
             //NOTE: for now assume always /relative
-            int baseOctave = trackPartBuilder.LastAddedNote == null ? trackPartBuilder.BaseOctave : trackPartBuilder.LastAddedNote.Octave;
+            //int baseOctave = trackPartBuilder.LastAddedNote == null ? previousPartBuilder == null ? trackPartBuilder.BaseOctave : trackPartBuilder.LastAddedNote.Octave;
+            int baseOctave = BaseOctave(tone, trackPartBuilder, previousTrackPartBuilder);
             noteBuilder.AddOctave(baseOctave + amountOctaveRaise);
 
             if (countString.Length > 0)
@@ -65,6 +67,42 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond.Handling
             //    noteBuilder.AddTone(tone);
 
             trackPartBuilder.AddNote(noteBuilder.GetItem());
+        }
+
+        private int BaseOctave(Tone tone, TrackPart.Builder currentTrackPartBuilder, TrackPart.Builder previousTrackPartBuilder)
+        {
+            if (currentTrackPartBuilder.LastAddedNote != null)
+            {
+                //return currentTrackPartBuilder.LastAddedNote.Octave;
+                return BaseOctave(currentTrackPartBuilder.LastAddedNote, tone);
+            }
+
+            if (previousTrackPartBuilder != null)
+            {
+                if (previousTrackPartBuilder.LastAddedNote != null)
+                {
+                    //return previousTrackPartBuilder.LastAddedNote.Octave;
+                    return BaseOctave(previousTrackPartBuilder.LastAddedNote, tone);
+                }
+            }
+
+            return currentTrackPartBuilder.BaseOctave;
+        }
+
+        private int BaseOctave(Note previousNote, Tone currentTone)
+        {
+            Tone previousTone = previousNote.Tone;
+            int diff = previousTone - currentTone;
+
+            //NOTE: 6 because 12 notes in octave.
+            int add = diff < -6 ? -1 : diff > 6 ? 1 : 0;
+
+            //if (diff < -6)
+            //    return previousNote.Octave + 1;
+            //else if (diff > 6)
+            //    return previousNote.Octave - 1;
+
+            return previousNote.Octave + add;
         }
     }
 }

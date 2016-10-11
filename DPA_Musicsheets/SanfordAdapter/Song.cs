@@ -10,11 +10,14 @@ namespace DPA_Musicsheets.SanfordAdapter
 {
     public class Song
     {
+        public static readonly int DEFAULT_DIVISION = 384;
+
         public Sequence Sequence { get; private set; }
 
         private Dictionary<int, int[]> timeSignaturesByStartTimes = new Dictionary<int, int[]>();
         public int[] TimeSignatureStartTimes { get { return timeSignaturesByStartTimes.Keys.ToArray(); } }
         public int[] TimeSignature(int startTime) { return timeSignaturesByStartTimes[startTime]; }
+
         public int Tempo { get; private set; }
 
         public List<Track> Tracks { get; private set; }
@@ -23,11 +26,10 @@ namespace DPA_Musicsheets.SanfordAdapter
         {
             Tracks = new List<Track>();
         }
+
         public Song(Sequence sequence) : this()
         {
             Sequence = sequence;
-            //ticksPerBeat = sequence.Division;
-            //ticksPerBeat = (int)(sequence.Division * (noteLength / 0.25));
         }
 
         public Sequence CreateSequence()
@@ -59,12 +61,11 @@ namespace DPA_Musicsheets.SanfordAdapter
             }
 
             public Builder AddTimeSignature(int startTime, int amountPerBar, int countsPerbeat)
-            { 
+            {
                 double quarterToSig1 = 4.0 / countsPerbeat;
-                //TODO handle without sequence
-                double tickPerSig1 = buildee.Sequence == null ? 0 : buildee.Sequence.Division * quarterToSig1;
-                //int ticksPerBeat = (int)(tickPerSig1 * amountPerBar);
-                buildee.timeSignaturesByStartTimes.Add(startTime, new int[]{amountPerBar, countsPerbeat, (int)tickPerSig1/*ticksPerBeat */});
+                double division = buildee.Sequence == null ? DEFAULT_DIVISION : buildee.Sequence.Division;
+                double tickPerSig1 = division * quarterToSig1; //ticksPerBeat
+                buildee.timeSignaturesByStartTimes.Add(startTime, new int[] { amountPerBar, countsPerbeat, (int)tickPerSig1 });
                 return this;
             }
 

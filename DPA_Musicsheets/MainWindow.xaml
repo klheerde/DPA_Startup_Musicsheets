@@ -6,15 +6,14 @@
         xmlns:PSAMWPFControl="clr-namespace:PSAMWPFControlLibrary;assembly=PSAMWPFControlLibrary"
         xmlns:local="clr-namespace:DPA_Musicsheets"
         mc:Ignorable="d"
-        Title="MainWindow" Height="500" Width="525" Closing="Window_Closing">
+        Title="MainWindow" Height="500" Width="1050" Closing="Window_Closing">
     <Grid x:Name="MainGrid">
         <TextBox x:Name="txt_MidiFilePath" HorizontalAlignment="Left" Height="23" Margin="90,10,0,0" TextWrapping="Wrap" Text="../../../smb1-Theme.mid" VerticalAlignment="Top" Width="233"/>
         <Button x:Name="btnPlay" Content="Play" HorizontalAlignment="Left" Margin="353,11,0,0" VerticalAlignment="Top" Width="75" Click="btnPlay_Click"/>
         <Button x:Name="btnOpen" Content="Open" HorizontalAlignment="Left" Margin="10,11,0,0" VerticalAlignment="Top" Width="75" Click="btnOpen_Click"/>
         <Button x:Name="btn_Stop" Content="Stop" HorizontalAlignment="Left" Margin="433,11,0,0" VerticalAlignment="Top" Width="75" Click="btn_Stop_Click"/>
-        <Button x:Name="btn_ShowContent" Content="Show content" HorizontalAlignment="Left" Margin="353,35,0,0" VerticalAlignment="Top" Width="155" Click="btn_ShowContent_Click"/>
 
-        <TabControl x:Name="tabCtrl_MidiContent" HorizontalAlignment="Left" Height="227" Margin="10,59,0,0" VerticalAlignment="Top" Width="498" ItemsSource="{Binding}" SelectionChanged="tabCtrl_MidiContent_SelectedIndexChanged">
+        <TabControl x:Name="tabCtrl_MidiContent" HorizontalAlignment="Left" Height="248" Margin="10,38,0,0" VerticalAlignment="Top" Width="498" ItemsSource="{Binding}" SelectionChanged="tabCtrl_MidiContent_SelectedIndexChanged">
             <TabControl.ItemContainerStyle>
                 <Style TargetType="{x:Type TabItem}">
                     <Setter Property="Header">
@@ -36,7 +35,15 @@
                 </DataTemplate>
             </TabControl.ContentTemplate>
         </TabControl>
-        <PSAMWPFControl:IncipitViewerWPF HorizontalAlignment="Left" Margin="0,300,0,0" Width="525" x:Name="staff" >
-        </PSAMWPFControl:IncipitViewerWPF>
+
+
+        <TextBox x:Name="editor" HorizontalAlignment="Left" Height="275" Margin="513,11,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="520"/>
+        
+        <Button x:Name="btn_Edit" Content="Edit" HorizontalAlignment="Right" Margin="0,11,10.2,0" VerticalAlignment="Top" Width="75" Click="btnEdit_Click"/>
+
+        <ScrollViewer VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Auto" Margin="0,291,0.4,0.4">
+            <PSAMWPFControl:IncipitViewerWPF HorizontalAlignment="Left" x:Name="staff" Width="9999" Height="128">
+            </PSAMWPFControl:IncipitViewerWPF>
+        </ScrollViewer>
     </Grid>
 </Window>

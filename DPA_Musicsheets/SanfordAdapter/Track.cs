@@ -26,6 +26,11 @@ namespace DPA_Musicsheets.SanfordAdapter
             private int currentTrackPartBuilderIndex = -1;
             private List<TrackPart.Builder> trackPartBuilders = new List<TrackPart.Builder>();
             public TrackPart.Builder CurrentTrackPartBuilder { get { return trackPartBuilders.ElementAt(currentTrackPartBuilderIndex); } }
+            public TrackPart.Builder PreviousTrackPartBuilder {
+                get {
+                    return currentTrackPartBuilderIndex > 0 ? trackPartBuilders.ElementAt(currentTrackPartBuilderIndex - 1) : null;        
+                }
+            }
 
             public Builder() : this(new Track()) { }
             public Builder(Track buildee)
@@ -35,11 +40,13 @@ namespace DPA_Musicsheets.SanfordAdapter
 
             public Builder AddSanfordTrack(Song.Builder songBuilder, SanfordTrack convert)
             {
-                TrackPart.Builder trackPartBuilder = null; //force the below if-statement to create trackPartBuilder.
+                //TrackPart.Builder trackPartBuilder = null; //force the below if-statement to create trackPartBuilder.
+                TrackPart.Builder trackPartBuilder = new TrackPart.Builder();
                 List<Note.Builder> pending = new List<Note.Builder>();
 
                 int currentTrackPart = 0;
                 int currentTime = 0;
+
                 //NOTE:  called before foreach so when control track stays length 0.
                 int[] startTimes = songBuilder.GetItem().TimeSignatureStartTimes;
 
@@ -77,7 +84,8 @@ namespace DPA_Musicsheets.SanfordAdapter
                                 {
                                     Note rest = new Note.Builder()
                                         .AddStart(currentTime)
-                                        .AddEnd(midiEvent.AbsoluteTicks, songBuilder.GetItem())
+                                        .AddEnd(midiEvent.AbsoluteTicks, trackPartBuilder.GetItem())
+                                        //.AddEnd(midiEvent.AbsoluteTicks, songBuilder.GetItem())
                                         .GetItem();
 
                                     trackPartBuilder.AddNote(rest);
@@ -98,7 +106,7 @@ namespace DPA_Musicsheets.SanfordAdapter
                                 //NOTE: find returns first match
                                 //TODO check if first with same keycode is actually one that endss
                                 Note.Builder noteBuilder = pending.Find(n => n.GetItem().Keycode == channelMessage.Data1);
-                                noteBuilder.AddEnd(midiEvent.AbsoluteTicks, songBuilder.GetItem());
+                                noteBuilder.AddEnd(midiEvent.AbsoluteTicks, trackPartBuilder.GetItem());
                                 trackPartBuilder.AddNote(noteBuilder.GetItem());
                                 pending.Remove(noteBuilder);
                             }
@@ -136,7 +144,9 @@ namespace DPA_Musicsheets.SanfordAdapter
                                     //kwart = 1 / 0.25 = 4
                                     int amountPerBar = bytes[0];
                                     int countsPerBeat = (int) Math.Pow(2, bytes[1]);
+                                    //NOTE: setting both time sigs in song and trackpart.
                                     songBuilder.AddTimeSignature(midiEvent.AbsoluteTicks, amountPerBar, countsPerBeat);
+                                    trackPartBuilder.AddTimeSignature(amountPerBar, countsPerBeat, songBuilder.GetItem());
                                     break;
                                 case MetaType.TrackName:
                                     buildee.Name = Encoding.Default.GetString(metaMessage.GetBytes());

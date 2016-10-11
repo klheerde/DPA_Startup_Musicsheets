@@ -18,11 +18,11 @@ namespace DPA_Musicsheets.SanfordAdapter.Tonal
             Velocity = VELOCITY;
         }
 
-        public Note(int startTime, int duration) : this()
-        {
-            StartTime = startTime;
-            Duration = duration;
-        }
+        //public Note(int startTime, int duration) : this()
+        //{
+        //    StartTime = startTime;
+        //    Duration = duration;
+        //}
 
         public int Keycode { get { return 12 * Octave + ((int) Tone > 0 ? (int) Tone : 0) + Raise; } }
         public int Octave { get; private set; }
@@ -35,7 +35,7 @@ namespace DPA_Musicsheets.SanfordAdapter.Tonal
             get { return startTime; }
             protected set { if (value >= 0) startTime = value; }
         }
-        //TODO unnecessary?
+        ////TODO unnecessary?
         private int duration;
         public int Duration {
             get { return duration; }
@@ -104,19 +104,42 @@ namespace DPA_Musicsheets.SanfordAdapter.Tonal
                 return this;
             }
 
-            //TODO change Song to TrackPart or parent reference in Note. Use TrackPart in Builder contructor as parent (force)
-            public Builder AddEnd(int end, Song song)
+            ////TODO change Song to TrackPart or parent reference in Note. Use TrackPart in Builder contructor as parent (force)
+            //public Builder AddEnd(int end, Song song)
+            //{
+            //    buildee.EndTime = end;
+
+            //    int[] startTimes = song.TimeSignatureStartTimes;
+            //    int index = Array.FindIndex(startTimes, s => s > buildee.StartTime); //finds first hit which is bigger or equal
+            //    int startTime = startTimes[index > -1 ? index - 1 : startTimes.Length - 1]; //use previous one, or last
+            //    int[] timeSignature = song.TimeSignature(startTime);
+
+                
+            //    double percentageOfBeatNote = (double)buildee.Duration / (double)timeSignature[2]; //ticksPerBeat
+            //    double percentageOfWholeNote = (1.0 / timeSignature[1]) * percentageOfBeatNote;
+            //    for (int noteLength = 1; noteLength <= 32; noteLength *= 2)
+            //    {
+            //        double absoluteNoteLength = (1.0 / noteLength);
+            //        if (percentageOfWholeNote >= absoluteNoteLength)
+            //        {
+            //            buildee.Dotted = absoluteNoteLength * 1.5 == percentageOfWholeNote;
+            //            buildee.Count = noteLength;
+            //            return this;
+            //        }
+            //    }
+
+            //    return this;
+            //}
+
+            public Builder AddEnd(int end, TrackPart trackPart)
             {
                 buildee.EndTime = end;
 
-                int[] startTimes = song.TimeSignatureStartTimes;
-                int index = Array.FindIndex(startTimes, s => s > buildee.StartTime); //finds first hit which is bigger or equal
-                int startTime = startTimes[index > -1 ? index - 1 : startTimes.Length - 1]; //use previous one, or last
-                int[] timeSignature = song.TimeSignature(startTime);
+                int timeSig1 = trackPart.TimeSignature(1);
+                int ticksPerBeat = trackPart.TimeSignature(2);
 
-                
-                double percentageOfBeatNote = (double)buildee.Duration / (double)timeSignature[2]; //ticksPerBeat
-                double percentageOfWholeNote = (1.0 / timeSignature[1]) * percentageOfBeatNote;
+                double percentageOfBeatNote = (double)buildee.Duration / (double)ticksPerBeat; //ticksPerBeat
+                double percentageOfWholeNote = (1.0 / timeSig1) * percentageOfBeatNote;
                 for (int noteLength = 1; noteLength <= 32; noteLength *= 2)
                 {
                     double absoluteNoteLength = (1.0 / noteLength);
@@ -130,6 +153,7 @@ namespace DPA_Musicsheets.SanfordAdapter.Tonal
 
                 return this;
             }
+
             //public Builder AddDuration(int duration)
             //{
             //    buildee.Duration = duration;
