@@ -32,6 +32,9 @@ namespace DPA_Musicsheets.SanfordAdapter
             public int BaseOctave { get; private set; }
             public Note LastAddedNote { get; private set; }
 
+            private int currentAlternativeIndex = 0;
+
+            //TODO force timesig for every part
             public Builder() : this(new TrackPart()) { }
             public Builder(TrackPart buildee)
             {
@@ -54,14 +57,40 @@ namespace DPA_Musicsheets.SanfordAdapter
             public Builder AddNote(Note note)
             {
                 if (buildee.Alternatives.Count > 0)
-                    buildee.Alternatives.Last().Add(note);
+                {
+                    int timeSig0 = buildee.TimeSignature(0);
+                    int timeSig1 = buildee.TimeSignature(1);
+                    //NOTE: throws exception if devided by 0.
+                    double countPerBar = timeSig0 * (1 / timeSig1);
+
+                    List<Note> alternative;
+                    try
+                    {
+                        alternative = buildee.Alternatives[currentAlternativeIndex];
+                    }
+                    catch (IndexOutOfRangeException e)
+                    {
+                        alternative = new List<Note>();
+                        buildee.Alternatives.Add(alternative);
+                    }
+
+                    alternative.Add(note);
+
+                    int countAlternatives = alternative.Sum(n => 1 / n.Count);
+                    if (countAlternatives >= countPerBar)
+                    {
+                        currentAlternativeIndex++;
+                    }     
+                }
                 else
+                {
                     buildee.Notes.Add(note);
+                }
                 LastAddedNote = note;
                 return this;
             }
 
-            public Builder AddAlternative()
+            public Builder AddAlternativeBarCount(int barAmount)
             {
                 buildee.Alternatives.Add(new List<Note>());
                 return this;

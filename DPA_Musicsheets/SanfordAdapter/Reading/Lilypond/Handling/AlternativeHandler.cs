@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DPA_Musicsheets.SanfordAdapter.Tonal;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,7 +12,21 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond.Handling
     {
         public void Handle(LilypondArraySegment.Enumerator enumerator, LilypondArraySegment allWordsIncludingKeyword, Song.Builder songBuilder)
         {
-            
+            TrackPart.Builder trackPartBuilder = songBuilder.CurrentTrackBuilder.CurrentTrackPartBuilder;
+
+            int barCount = 1;
+            foreach (string word in allWordsIncludingKeyword.Skip(3))
+            {
+                if (word == "|")
+                {
+                    barCount++;
+                }
+                else if (word == "}")
+                {
+                    trackPartBuilder.AddAlternativeBarCount(barCount);
+                    return;
+                }
+            }
         }
     }
 }

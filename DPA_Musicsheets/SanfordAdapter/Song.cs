@@ -14,6 +14,7 @@ namespace DPA_Musicsheets.SanfordAdapter
 
         public Sequence Sequence { get; private set; }
 
+        //TODO get rid of
         private Dictionary<int, int[]> timeSignaturesByStartTimes = new Dictionary<int, int[]>();
         public int[] TimeSignatureStartTimes { get { return timeSignaturesByStartTimes.Keys.ToArray(); } }
         public int[] TimeSignature(int startTime) { return timeSignaturesByStartTimes[startTime]; }
@@ -52,14 +53,15 @@ namespace DPA_Musicsheets.SanfordAdapter
                 buildee = song;
             }
 
-            public Builder AddSequence(Sequence sequence)
-            {
-                buildee.Sequence = sequence;
-                for (int i = 0; i < sequence.Count; i++)
-                    buildee.Tracks.Add(new Track.Builder().AddSanfordTrack(this, sequence[i]).GetItem());
-                return this;
-            }
+            //public Builder AddSequence(Sequence sequence)
+            //{
+            //    buildee.Sequence = sequence;
+            //    for (int i = 0; i < sequence.Count; i++)
+            //        buildee.Tracks.Add(new Track.Builder().AddSanfordTrack(this, sequence[i]).GetItem());
+            //    return this;
+            //}
 
+            //TODO get rid of
             public Builder AddTimeSignature(int startTime, int amountPerBar, int countsPerbeat)
             {
                 double quarterToSig1 = 4.0 / countsPerbeat;

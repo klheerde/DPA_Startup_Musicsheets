@@ -14,11 +14,11 @@ namespace DPA_Musicsheets.SanfordAdapter.Writing.Lilypond
         {
             string output = "";
             string end = " " + System.Environment.NewLine;
-            Stack <string> append = new Stack<string>();
+            string close = "}" + end;
+            //Stack <string> append = new Stack<string>();
 
             //TODO base octave
-            output += "//relative c' {" + end;
-            append.Push("}");
+            output += "\\relative c' {" + end;
 
             //TODO tempo by beat note
             output += "\\tempo 4=" + song.Tempo + end;
@@ -29,8 +29,7 @@ namespace DPA_Musicsheets.SanfordAdapter.Writing.Lilypond
                 {
                     if (trackPart.Repeat > 1)
                     {
-                        output += "\\repeat volta " + trackPart.Repeat + "{" + end;
-                        append.Push("}");
+                        output += "\\repeat volta " + trackPart.Repeat + " {" + end;
                     }
 
                     if (trackPart.TimeSignature(0) > 0)
@@ -38,23 +37,55 @@ namespace DPA_Musicsheets.SanfordAdapter.Writing.Lilypond
                         output += "\\time " + trackPart.TimeSignature(0) + "/" + trackPart.TimeSignature(1) + end;
                     }
 
+                    //TODO bar lines
                     foreach (Note note in trackPart.Notes)
                     {
-                        //public static readonly string REGEXSTRING = @"^([a-gr])((?:is)*)((?:es)*)('*)(\,*)(\d{0,2})(\.*)$";
-                        output += note.Tone.ToString().ToLower();
-                        string raise = note.Raise > 0 ? "is" : "es";
-                        output += string.Concat(Enumerable.Repeat(raise, Math.Abs(note.Raise)));
-                        //TODO octave raise or low
-                        output += note.Count;
-                        //output += new string('.', note.Dots);
-                        if (note.Dotted)
-                            output += ".";
-                        output += " ";
+                        output += NoteString(note);
+                    }
+                    output += end;
+
+                    if (trackPart.Repeat > 1)
+                    {
+                        output += close; //\\repeat
+
+                        if (trackPart.Alternatives.Count > 0)
+                        {
+                            output += "\\alternative {" + end;
+                            foreach (List<Note> alternative in trackPart.Alternatives)
+                            {
+                                output += "{ ";
+                                foreach (Note note in alternative)
+                                {
+                                    output += NoteString(note);
+                                }
+                                output += close; // { alt row
+                            }
+
+                            output += close; //\\alternative
+                        }
                     }
                 }
             }
 
+            output += close; //\\relative
+
             return output;
+        }
+
+        private string NoteString(Note note)
+        {
+            string output = "";
+            //public static readonly string REGEXSTRING = @"^([a-gr])((?:is)*)((?:es)*)('*)(\,*)(\d{0,2})(\.*)$";
+            output += note.Tone.ToString().ToLower();
+            string raise = note.Raise > 0 ? "is" : "es";
+            output += string.Concat(Enumerable.Repeat(raise, Math.Abs(note.Raise)));
+            //TODO octave raise or low
+            output += note.Count;
+            //output += new string('.', note.Dots);
+            if (note.Dotted)
+                output += ".";
+
+            return output + " ";
         }
     }
 }

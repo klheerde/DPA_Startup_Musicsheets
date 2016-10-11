@@ -15,11 +15,11 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond.Handling
             songBuilder.CurrentTrackBuilder.AddTrackPartBuilder(trackPartBuilder);
 
             int currentIndex = 0;
-            string repeatKindString = allWordsIncludingKeyword.ElementAt(currentIndex++);
+            string repeatKindString = allWordsIncludingKeyword.ElementAt(++currentIndex);
             switch (repeatKindString)
             {
                 case "volta": //NOTE: assume always volta for now
-                    string repeatAmountString = allWordsIncludingKeyword.ElementAt(currentIndex++);
+                    string repeatAmountString = allWordsIncludingKeyword.ElementAt(++currentIndex);
                     int repeatAmount = Int32.Parse(repeatAmountString);
                     trackPartBuilder.AddRepeat(repeatAmount);
                     //NOTE: indicates "volta" and number e.g. "2" and "{" handled

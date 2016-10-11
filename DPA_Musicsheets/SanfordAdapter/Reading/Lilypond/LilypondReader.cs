@@ -23,7 +23,7 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond
             handlers.Add(new Regex(@"^\\alternative$"), new AlternativeHandler());
             handlers.Add(new Regex(@"^\\tempo$"), new TempoHandler());
             handlers.Add(new Regex(@"^\\time$"), new TimeHandler());
-            handlers.Add(new Regex(@"^\\repeat$"), new RelativeHandler());
+            handlers.Add(new Regex(@"^\\repeat$"), new RepeatHandler());
             handlers.Add(new Regex(NoteHandler.REGEXSTRING), new NoteHandler());
         }
 

@@ -47,10 +47,5 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading
 
             return null;
         }
-
-        public Song ReadSequence(Sequence sequence)
-        {
-            return new Song.Builder().AddSequence(sequence).GetItem();
-        }
     }
 }
