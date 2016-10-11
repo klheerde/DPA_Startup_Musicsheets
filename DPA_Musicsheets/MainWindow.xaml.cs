@@ -1,5 +1,7 @@
 ﻿using DPA_Musicsheets.SanfordAdapter;
 using DPA_Musicsheets.SanfordAdapter.Reading;
+using DPA_Musicsheets.SanfordAdapter.Reading.Lilypond;
+using DPA_Musicsheets.SanfordAdapter.Writing.Lilypond;
 using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
@@ -47,8 +49,9 @@ namespace DPA_Musicsheets
                 //NOTE: show the selected file in textbox
                 txt_MidiFilePath.Text = filePath;
 
-                editor.Text = System.IO.File.ReadAllText(filePath);
+                //editor.Text = System.IO.File.ReadAllText(filePath);
                 song = MusicReader.Singleton.Read(filePath);
+                editor.Text = new LilypondWriter().Write(song);
                 ShowMidiTracks();
             }
         }
@@ -66,7 +69,11 @@ namespace DPA_Musicsheets
 
         private void btnEdit_Click(object sender, RoutedEventArgs e)
         {
+            LilypondReader lilyReader = MusicReader.Singleton.Readers["ly"] as LilypondReader;
+            song = lilyReader.ReadFromString(editor.Text);
+            ShowMidiTracks();
         }
+
         private void btnPlay_Click(object sender, RoutedEventArgs e)
         {
             if (player != null)

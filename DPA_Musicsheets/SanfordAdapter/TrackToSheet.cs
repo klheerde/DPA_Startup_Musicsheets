@@ -76,7 +76,9 @@ namespace DPA_Musicsheets.SanfordAdapter
                 }
                 catch (InvalidOperationException e)
                 {
-                    TrackPart firstTrackPart = parentTrack.Parts.First();
+                    int index = parentTrack.Parts.IndexOf(currentDrawingTrackPart);
+                    //NOTE: throws exception if -1.
+                    TrackPart firstTrackPart = parentTrack.Parts.ElementAt(index - 1);
                     timeSig0 = firstTrackPart.TimeSignature(0);
                     timeSig1 = firstTrackPart.TimeSignature(1);
                     ticksPerBeat = firstTrackPart.TimeSignature(2);

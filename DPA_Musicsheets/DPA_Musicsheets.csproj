@@ -91,6 +91,8 @@
     <Compile Include="SanfordAdapter\TrackPart.cs" />
     <Compile Include="SanfordAdapter\TrackToSheet.cs" />
     <Compile Include="SanfordAdapter\TrackViewModel.cs" />
+    <Compile Include="SanfordAdapter\Writing\IMusicWriter.cs" />
+    <Compile Include="SanfordAdapter\Writing\Lilypond\LilypondWriter.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

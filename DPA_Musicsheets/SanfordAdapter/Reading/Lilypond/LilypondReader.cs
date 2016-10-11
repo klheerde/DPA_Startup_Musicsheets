@@ -31,12 +31,17 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond
         public Song Read(string filePath)
         {
             string text = System.IO.File.ReadAllText(filePath);
-            string[] words = text.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
+            return ReadFromString(text);
+        }
+
+        public Song ReadFromString(string fileText)
+        {
+            string[] words = fileText.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
             LilypondArraySegment segment = new LilypondArraySegment(words);
             Song.Builder songBuilder = new Song.Builder();
 
             LilypondArraySegment.Enumerator enumerator = segment.GetEnumerator() as LilypondArraySegment.Enumerator;
-            while(enumerator.MoveNext())
+            while (enumerator.MoveNext())
             {
                 string word = enumerator.Current;
                 foreach (Regex regex in handlers.Keys)
