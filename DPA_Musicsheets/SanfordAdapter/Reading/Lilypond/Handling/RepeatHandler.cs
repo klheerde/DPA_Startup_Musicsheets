@@ -7,15 +7,17 @@ using System.Threading.Tasks;
 
 namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond.Handling
 {
-    class RepeatHandler : IHandler
+    class RepeatHandler : OpeningBraceHandler
     {
-        public void Handle(LilypondArraySegment.Enumerator enumerator, LilypondArraySegment allWordsIncludingKeyword, Song.Builder songBuilder)
+        public override void Handle(LilypondArraySegment.Enumerator enumerator, LilypondArraySegment allWordsIncludingKeyword, Song.Builder songBuilder)
         {
-            TrackPart.Builder trackPartBuilder = new TrackPart.Builder();
-            songBuilder.CurrentTrackBuilder.AddTrackPartBuilder(trackPartBuilder);
+            base.Handle(enumerator, allWordsIncludingKeyword, songBuilder);
+            //NOTE: must exist because base.Handle gets or creates.
+            TrackPart.Builder trackPartBuilder = songBuilder.CurrentTrackBuilder.CurrentTrackPartBuilder;
 
             int currentIndex = 0;
             string repeatKindString = allWordsIncludingKeyword.ElementAt(++currentIndex);
+            //NOTE: not using design pattern because only using volta.
             switch (repeatKindString)
             {
                 case "volta": //NOTE: assume always volta for now
@@ -27,12 +29,12 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond.Handling
                     //NOTE: skips "volta" and number e.g. "2" and "{" in foreach.
                     enumerator.CurrentIndex += 3; 
                     break;
-                case "unfold" :
-                    break;
-                case "percent" :
-                    break;
-                case "tremolo" :
-                    break;
+                //case "unfold" :
+                //    break;
+                //case "percent" :
+                //    break;
+                //case "tremolo" :
+                //    break;
             }
         }
     }

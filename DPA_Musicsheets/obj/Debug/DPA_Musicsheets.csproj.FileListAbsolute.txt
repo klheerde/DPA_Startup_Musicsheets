@@ -18,7 +18,6 @@ C:\Users\mmaaschu\Documents\GitHub\DPA_Startup_Musicsheets\DPA_Musicsheets\obj\D
 C:\Users\mmaaschu\Documents\GitHub\DPA_Startup_Musicsheets\DPA_Musicsheets\obj\Debug\DPA_Musicsheets.pdb
 C:\Users\mmaaschu\Documents\GitHub\DPA_Startup_Musicsheets\DPA_Musicsheets\bin\Debug\Sanford.Multimedia.Midi.pdb
 C:\Users\kenva\School\blok13\design patterns\DPA_Startup_Musicsheets\DPA_Musicsheets\bin\Debug\DPA_Musicsheets.exe.config
-C:\Users\kenva\School\blok13\design patterns\DPA_Startup_Musicsheets\DPA_Musicsheets\obj\Debug\DPA_Musicsheets.csprojResolveAssemblyReference.cache
 C:\Users\kenva\School\blok13\design patterns\DPA_Startup_Musicsheets\DPA_Musicsheets\obj\Debug\MainWindow.g.cs
 C:\Users\kenva\School\blok13\design patterns\DPA_Startup_Musicsheets\DPA_Musicsheets\obj\Debug\App.g.cs
 C:\Users\kenva\School\blok13\design patterns\DPA_Startup_Musicsheets\DPA_Musicsheets\obj\Debug\DPA_Musicsheets_MarkupCompile.cache
@@ -36,3 +35,4 @@ C:\Users\kenva\School\blok13\design patterns\DPA_Startup_Musicsheets\DPA_Musicsh
 C:\Users\kenva\School\blok13\design patterns\DPA_Startup_Musicsheets\DPA_Musicsheets\obj\Debug\DPA_Musicsheets.csproj.GenerateResource.Cache
 C:\Users\kenva\School\blok13\design patterns\DPA_Startup_Musicsheets\DPA_Musicsheets\obj\Debug\DPA_Musicsheets.exe
 C:\Users\kenva\School\blok13\design patterns\DPA_Startup_Musicsheets\DPA_Musicsheets\obj\Debug\DPA_Musicsheets.pdb
+C:\Users\kenva\School\blok13\design patterns\DPA_Startup_Musicsheets\DPA_Musicsheets\obj\Debug\DPA_Musicsheets.csprojResolveAssemblyReference.cache

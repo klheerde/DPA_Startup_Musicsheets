@@ -1,4 +1,5 @@
 ﻿using DPA_Musicsheets.SanfordAdapter.Tonal;
+using PSAMControlLibrary;
 using Sanford.Multimedia.Midi;
 using System;
 using System.Collections.Generic;
@@ -20,11 +21,12 @@ namespace DPA_Musicsheets.SanfordAdapter
         public int[] TimeSignature(int startTime) { return timeSignaturesByStartTimes[startTime]; }
 
         public int Tempo { get; private set; }
-
+        public ClefType Clef { get; private set; }
         public List<Track> Tracks { get; private set; }
     
         public Song()
         {
+            Clef = ClefType.GClef;
             Tracks = new List<Track>();
         }
 
@@ -45,7 +47,16 @@ namespace DPA_Musicsheets.SanfordAdapter
 
             private int currentTrackBuilderIndex = -1;
             private List<Track.Builder> trackBuilders = new List<Track.Builder>();
-            public Track.Builder CurrentTrackBuilder { get { return trackBuilders.ElementAt(currentTrackBuilderIndex); } }
+            public Track.Builder CurrentTrackBuilder {
+                get {
+                    return trackBuilders.ElementAt(currentTrackBuilderIndex);
+                }
+            }
+            public Track.Builder PreviousTrackBuilder {
+                get {
+                    return currentTrackBuilderIndex > 0 ? trackBuilders.ElementAt(currentTrackBuilderIndex - 1) : null;
+                }
+            }
 
             public Builder() : this(new Song()) { }
             public Builder(Song song)
@@ -53,6 +64,11 @@ namespace DPA_Musicsheets.SanfordAdapter
                 buildee = song;
             }
 
+            public Builder AddSequence(Sequence sequence)
+            {
+                buildee.Sequence = sequence;
+                return this;
+            }
             //public Builder AddSequence(Sequence sequence)
             //{
             //    buildee.Sequence = sequence;
@@ -74,6 +90,12 @@ namespace DPA_Musicsheets.SanfordAdapter
             public Builder AddTempo(int tempo)
             {
                 buildee.Tempo = tempo;
+                return this;
+            }
+
+            public Builder AddClef(ClefType clefType)
+            {
+                buildee.Clef = clefType;
                 return this;
             }
 

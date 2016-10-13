@@ -9,13 +9,14 @@ namespace DPA_Musicsheets.SanfordAdapter
 {
     public class TrackPart
     {
+        public int BaseOctave { get; private set; }
         public List<Note> Notes { get; private set; }
         public List<List<Note>> Alternatives { get; private set; }
 
+        //TODO unnecessary?
         public int StartTime { get; private set; }
         private int[] timeSignature = new int[3];
         public int TimeSignature(int i) { return timeSignature[i]; }
-
         
         public int Repeat { get; private set; }
 
@@ -25,17 +26,21 @@ namespace DPA_Musicsheets.SanfordAdapter
             Alternatives = new List<List<Note>>();
         }
 
-
         public class Builder : IBuilder<TrackPart>
         {
+            //private static int[] PREV_TIMESIG = null;
+
             private TrackPart buildee;
-            public int BaseOctave { get; private set; }
             public Note LastAddedNote { get; private set; }
 
             private int currentAlternativeIndex = 0;
 
-            //TODO force timesig for every part
-            public Builder() : this(new TrackPart()) { }
+            public Builder() : this(new TrackPart())
+            {
+                ////NOTE: only add timesig in this constructor, assume when given trackPart already has timesig.
+                //if (PREV_TIMESIG != null)
+                //    AddTimeSignature(PREV_TIMESIG[0], PREV_TIMESIG[1], PREV_TIMESIG[2]);
+            }
             public Builder(TrackPart buildee)
             {
                 this.buildee = buildee;
@@ -45,12 +50,11 @@ namespace DPA_Musicsheets.SanfordAdapter
             {
                 buildee.Repeat = repeat;
                 return this;
-            }
+            } 
 
             public Builder AddBaseOctave(int baseOctave)
             {
-                //TODO center octave from clef
-                BaseOctave = 3 + baseOctave;
+                buildee.BaseOctave = baseOctave; //was 3 +
                 return this;
             }
 
@@ -58,29 +62,33 @@ namespace DPA_Musicsheets.SanfordAdapter
             {
                 if (buildee.Alternatives.Count > 0)
                 {
-                    int timeSig0 = buildee.TimeSignature(0);
-                    int timeSig1 = buildee.TimeSignature(1);
-                    //NOTE: throws exception if devided by 0.
-                    double countPerBar = timeSig0 * (1 / timeSig1);
-
-                    List<Note> alternative;
-                    try
-                    {
-                        alternative = buildee.Alternatives[currentAlternativeIndex];
-                    }
-                    catch (IndexOutOfRangeException e)
-                    {
-                        alternative = new List<Note>();
-                        buildee.Alternatives.Add(alternative);
-                    }
-
+                    List<Note> alternative = buildee.Alternatives.Last();
                     alternative.Add(note);
+                    #region hide
+                    //int timeSig0 = buildee.TimeSignature(0);
+                    //int timeSig1 = buildee.TimeSignature(1);
+                    ////NOTE: throws exception if devided by 0.
+                    //double countPerBar = timeSig0 * (1.0 / timeSig1);
 
-                    int countAlternatives = alternative.Sum(n => 1 / n.Count);
-                    if (countAlternatives >= countPerBar)
-                    {
-                        currentAlternativeIndex++;
-                    }     
+                    //List<Note> alternative;
+                    //try
+                    //{
+                    //    alternative = buildee.Alternatives[currentAlternativeIndex];
+                    //}
+                    //catch (ArgumentOutOfRangeException e)
+                    //{
+                    //    alternative = new List<Note>();
+                    //    buildee.Alternatives.Add(alternative);
+                    //}
+
+                    //alternative.Add(note);
+
+                    //double countAlternatives = alternative.Sum(n => 1.0 / n.Count);
+                    //if (countAlternatives >= countPerBar)
+                    //{
+                    //    currentAlternativeIndex++;
+                    //}   
+                    #endregion
                 }
                 else
                 {
@@ -90,7 +98,7 @@ namespace DPA_Musicsheets.SanfordAdapter
                 return this;
             }
 
-            public Builder AddAlternativeBarCount(int barAmount)
+            public Builder AddAlternative()
             {
                 buildee.Alternatives.Add(new List<Note>());
                 return this;
@@ -121,9 +129,9 @@ namespace DPA_Musicsheets.SanfordAdapter
                 buildee.timeSignature[0] = amountInBar;
                 buildee.timeSignature[1] = countsPerBeat;
                 buildee.timeSignature[2] = ticksPerBeat;
+                //PREV_TIMESIG = new int[3] { amountInBar, countsPerBeat, ticksPerBeat };
                 return this;
             }
-
 
             public TrackPart GetItem()
             {

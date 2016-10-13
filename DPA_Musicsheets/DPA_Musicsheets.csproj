@@ -69,8 +69,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="SanfordAdapter\Reading\IMusicReader.cs" />
+    <Compile Include="SanfordAdapter\Reading\Lilypond\Handling\OpeningBraceHandler.cs" />
     <Compile Include="SanfordAdapter\Reading\Lilypond\Handling\AlternativeHandler.cs" />
     <Compile Include="SanfordAdapter\Reading\Lilypond\Handling\RepeatHandler.cs" />
+    <Compile Include="SanfordAdapter\Reading\Lilypond\Handling\ClefHandler.cs" />
     <Compile Include="SanfordAdapter\Reading\Lilypond\Handling\TimeHandler.cs" />
     <Compile Include="SanfordAdapter\Reading\Lilypond\Handling\NoteHandler.cs" />
     <Compile Include="SanfordAdapter\Reading\Lilypond\Handling\RelativeHandler.cs" />

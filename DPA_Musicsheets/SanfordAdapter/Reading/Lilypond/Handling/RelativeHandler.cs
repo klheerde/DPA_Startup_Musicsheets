@@ -7,25 +7,15 @@ using System.Threading.Tasks;
 
 namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond.Handling
 {
-    class RelativeHandler : IHandler
+    class RelativeHandler : OpeningBraceHandler
     {
-        public void Handle(LilypondArraySegment.Enumerator enumerator, LilypondArraySegment allWordsIncludingKeyword, Song.Builder songBuilder)
+        private readonly int lilypondCenterOctaveNotes = 2;
+
+        public override void Handle(LilypondArraySegment.Enumerator enumerator, LilypondArraySegment allWordsIncludingKeyword, Song.Builder songBuilder)
         {
-            //TODO find out when new track should be created. find lilypond track notation
-
-            Track.Builder trackBuilder;
-            try
-            {
-                trackBuilder = songBuilder.CurrentTrackBuilder;
-            }
-            catch (ArgumentOutOfRangeException e)
-            {
-                trackBuilder = new Track.Builder();
-                songBuilder.AddTrackBuilder(trackBuilder);
-            }
-
-            TrackPart.Builder trackPartBuilder = new TrackPart.Builder();
-            trackBuilder.AddTrackPartBuilder(trackPartBuilder);
+            base.Handle(enumerator, allWordsIncludingKeyword, songBuilder);
+            //NOTE: must exist because base.Handle gets or creates.
+            TrackPart.Builder trackPartBuilder = songBuilder.CurrentTrackBuilder.CurrentTrackPartBuilder;
 
             int currentIndex = 0;
             string currentWord = allWordsIncludingKeyword.ElementAt(++currentIndex);
@@ -36,7 +26,7 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond.Handling
                 string octaveUpString = noteMatch.Groups[4].Value;
                 string octaveDownString = noteMatch.Groups[5].Value;
                 int octave = octaveUpString.Length - octaveDownString.Length;
-                trackPartBuilder.AddBaseOctave(octave);
+                trackPartBuilder.AddBaseOctave(lilypondCenterOctaveNotes + octave);
 
                 //NOTE: indicates words "//relative", some note e.g. "c'" and "{" have been handled.
                 allWordsIncludingKeyword.Start += 2;

@@ -16,159 +16,164 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Midi
         {
             var sequence = new Sequence();
             sequence.Load(filePath);
-
-            return ReadSequence(sequence);
+            return new SequenceToSongConverter(sequence).Convert();
         }
 
-        public Song ReadSequence(Sequence sequence)
+        private sealed class SequenceToSongConverter
         {
-            //return new Song.Builder().AddSequence(sequence).GetItem();
-
-            Song.Builder songBuilder = new Song.Builder();
-
-            Dictionary<int, int[]> timeSignaturesByStartTime = new Dictionary<int, int[]>();
-
-            for (int i = 0; i < sequence.Count; i++)
+            private Sequence Sequence { get; set; }
+            public SequenceToSongConverter(Sequence sequence)
             {
-                //buildee.Tracks.Add(new Track.Builder().AddSanfordTrack(this, sequence[i]).GetItem());
-                SanfordTrack sanfordTrack = sequence[i];
+                Sequence = sequence;
+                songBuilder.AddSequence(sequence);
+            }
 
-                Track.Builder trackBuilder = new Track.Builder();
-                songBuilder.AddTrackBuilder(trackBuilder);
+            private int currentTime = 0;
+            private Dictionary<int, int[]> timeSignaturesByStartTime = new Dictionary<int, int[]>();
+            private Song.Builder songBuilder = new Song.Builder();
+            private List<Note.Builder> pending = new List<Note.Builder>();
 
-                //NOTE: force the below if-statement to create trackPartBuilder.
-                TrackPart.Builder trackPartBuilder = null; 
-                List<Note.Builder> pending = new List<Note.Builder>();
+            public Song Convert()
+            {
+                ReadControlTrack();
+                ReadTracks();
+                return songBuilder.GetItem();
+            }
 
-                //int currentTrackPart = 0;
-                int currentTime = 0;
-
-                ////NOTE:  called before foreach so when control track stays length 0.
-                //int[] startTimes = songBuilder.GetItem().TimeSignatureStartTimes;
-
-                foreach (var midiEvent in sanfordTrack.Iterator())
+            private void ReadControlTrack()
+            {
+                SanfordTrack controlTrack = Sequence[0];
+                foreach (var midiEvent in controlTrack.Iterator())
                 {
-                    int startTime = 0;
-                    int[] startTimes = timeSignaturesByStartTime.Keys.ToArray();
-                    //NOTE: when sanfordTrack.Iterator gets to tracks containing notes 
-                    //      start creating trackparts on timesigs given during first iteration (control track)
-                    //NOTE: first track (control track) doesn't enter this statement.
-                    if (i < startTimes.Length && currentTime >= (startTime = startTimes[i]))
+                    if (midiEvent.MidiMessage.MessageType != MessageType.Meta)
+                        continue;
+                    MetaMessage metaMessage = midiEvent.MidiMessage as MetaMessage;
+                    byte[] bytes = metaMessage.GetBytes();
+                    switch (metaMessage.MetaType)
                     {
-                        //int[] timeSignature = songBuilder.GetItem().TimeSignature(startTime);
-                        int[] timeSignature = timeSignaturesByStartTime[startTime];
+                        case MetaType.Tempo:
+                            int tempo = (bytes[0] & 0xff) << 16 | (bytes[1] & 0xff) << 8 | (bytes[2] & 0xff);
+                            songBuilder.AddTempo(60000000 / tempo);
+                            break;
+                        case MetaType.TimeSignature:
+                            int amountPerBar = bytes[0];
+                            int countsPerBeat = (int)Math.Pow(2, bytes[1]);
+                            double quarterToSig1 = 4.0 / countsPerBeat;
+                            double tickPerSig1 = Sequence.Division * quarterToSig1; //ticksPerBeat
+                            timeSignaturesByStartTime.Add(midiEvent.AbsoluteTicks, new int[] { amountPerBar, countsPerBeat, (int)tickPerSig1 });
+                            break;
+                    }
+                }
+            }
 
-                        trackPartBuilder = new TrackPart.Builder()
-                            .AddStartTime(startTime)
-                            .AddTimeSignature(timeSignature[0], timeSignature[1], timeSignature[2]);
+            private void ReadTracks()
+            {
+                int currentStartTimeIndex = 0;
+                int[] startTimes = timeSignaturesByStartTime.Keys.ToArray();
 
-                        //songBuilder.CurrentTrackBuilder.AddTrackPart(trackPartBuilder.GetItem());
-                        //TODO better to use addTrackPartBuilder?
-                        trackBuilder.AddTrackPart(trackPartBuilder.GetItem());
+                //NOTE: starting from 1 because 0 is control track.
+                for (int i = 1; i < Sequence.Count; i++)
+                {
+                    SanfordTrack sanfordTrack = Sequence[i];
+                    Track.Builder trackBuilder = new Track.Builder();
+                    songBuilder.AddTrackBuilder(trackBuilder);
+                    //NOTE: force the below if-statement to create trackPartBuilder. If something goes wrong will throw nullpointer exception.
+                    TrackPart.Builder trackPartBuilder = null;
 
-                        //currentTrackPart++;
+                    foreach (var midiEvent in sanfordTrack.Iterator())
+                    {
+                        //NOTE: set startTime to avoid compile errors, is reset in below if statement.
+                        int startTime = -1;
+                        //NOTE: when sanfordTrack.Iterator gets to tracks containing notes 
+                        //      start creating trackparts on timesigs given during first iteration (control track)
+                        //NOTE: currentTime set by ReadChannelMessage().
+                        if (currentStartTimeIndex < startTimes.Length && currentTime >= (startTime = startTimes[currentStartTimeIndex]))
+                        {
+                            int[] timeSignature = timeSignaturesByStartTime[startTime];
+                            trackPartBuilder = new TrackPart.Builder()
+                                .AddStartTime(startTime)
+                                .AddTimeSignature(timeSignature[0], timeSignature[1], timeSignature[2]);
+                            trackBuilder.AddTrackPartBuilder(trackPartBuilder);
+                            currentStartTimeIndex++;
+                        }
+
+                        switch (midiEvent.MidiMessage.MessageType)
+                        {
+                            case MessageType.Channel:
+                                ReadChannelMessage(midiEvent);
+                                break;
+                            case MessageType.Meta:
+                                ReadMetaMessage(midiEvent);
+                                break;
+                        }
+                    } //end: foreach (var midiEvent in sanfordTrack.Iterator())
+                } //end: for (int i = 0; i < sequence.Count; i++)
+
+            }
+
+            private void ReadChannelMessage(MidiEvent midiEvent)
+            {
+                ChannelMessage channelMessage = midiEvent.MidiMessage as ChannelMessage;
+                //NOTE: if order execution wrong will throw nullpointer exception.
+                TrackPart.Builder trackPartBuilder = songBuilder.CurrentTrackBuilder.CurrentTrackPartBuilder;
+                //NOTE: NoteOn and velocity higher than 0 == start note
+                //vel > 0 && delta > 0 = rest.len = delta
+                if (channelMessage.Command == ChannelCommand.NoteOn && channelMessage.Data2 > 0)
+                {
+                    Note.Builder noteBuilder = new Note.Builder()
+                        .AddKeycode(channelMessage.Data1)
+                        .AddVelocity(channelMessage.Data2)
+                        .AddStart(midiEvent.AbsoluteTicks);
+
+                    pending.Add(noteBuilder);
+
+                    if (midiEvent.AbsoluteTicks > currentTime)
+                    {
+                        Note rest = new Note.Builder()
+                            .AddStart(currentTime)
+                            .AddEnd(midiEvent.AbsoluteTicks, trackPartBuilder.GetItem())
+                            .GetItem();
+
+                        trackPartBuilder.AddNote(rest);
                     }
 
-                    switch (midiEvent.MidiMessage.MessageType)
-                    {
-                        case MessageType.Channel:
-                            var channelMessage = midiEvent.MidiMessage as ChannelMessage;
+                    //TODO use DeltaTicks:
+                    //if (midiEvent.DeltaTicks > 0) //rest
+                    //{
+                    //    Note rest = new Note.Builder()
+                    //        .AddStart(midiEvent.AbsoluteTicks)
+                    //        .AddDuration(midiEvent.DeltaTicks)
+                    //        .Build();
+                    //    track.AddNote(rest);
+                    //}
 
-                            //NOTE: velocity higher than 0 == start note
-                            //vel > 0 && delta > 0 = rest.len = delta
-                            if (channelMessage.Data2 > 0)
-                            {
-                                Note.Builder noteBuilder = new Note.Builder()
-                                    .AddKeycode(channelMessage.Data1)
-                                    .AddVelocity(channelMessage.Data2)
-                                    .AddStart(midiEvent.AbsoluteTicks);
+                }
+                else if (channelMessage.Command == ChannelCommand.NoteOff || channelMessage.Data2 == 0) //NOTE: end of note.
+                {
+                    //NOTE: find returns first match.
+                    //TODO check if first with same keycode is actually one that endss
+                    Note.Builder noteBuilder = pending.Find(n => n.GetItem().Keycode == channelMessage.Data1);
+                    //TODO dont calculate Count using ticks in domain classes
+                    noteBuilder.AddEnd(midiEvent.AbsoluteTicks, trackPartBuilder.GetItem());
+                    trackPartBuilder.AddNote(noteBuilder.GetItem());
+                    pending.Remove(noteBuilder);
+                }
 
-                                pending.Add(noteBuilder);
+                //TODO could cause issues because current time = AbsoluteTicks + noteLength
+                currentTime = midiEvent.AbsoluteTicks;
+            }
 
-                                if (midiEvent.AbsoluteTicks > currentTime)
-                                {
-                                    Note rest = new Note.Builder()
-                                        .AddStart(currentTime)
-                                        .AddEnd(midiEvent.AbsoluteTicks, trackPartBuilder.GetItem())
-                                        //.AddEnd(midiEvent.AbsoluteTicks, songBuilder.GetItem())
-                                        .GetItem();
-
-                                    trackPartBuilder.AddNote(rest);
-                                }
-
-                                //TODO use DeltaTicks:
-                                //if (midiEvent.DeltaTicks > 0) //rest
-                                //{
-                                //    Note rest = new Note.Builder()
-                                //        .AddStart(midiEvent.AbsoluteTicks)
-                                //        .AddDuration(midiEvent.DeltaTicks)
-                                //        .Build();
-                                //    track.AddNote(rest);
-                                //}
-
-                            }
-                            else //NOTE: end of note.
-                            {
-                                //NOTE: find returns first match.
-                                //TODO check if first with same keycode is actually one that endss
-                                Note.Builder noteBuilder = pending.Find(n => n.GetItem().Keycode == channelMessage.Data1);
-                                //TODO dont calculate Count using ticks in domain classes
-                                noteBuilder.AddEnd(midiEvent.AbsoluteTicks, trackPartBuilder.GetItem());
-                                trackPartBuilder.AddNote(noteBuilder.GetItem());
-                                pending.Remove(noteBuilder);
-                            }
-
-                            //TODO could cause issues because current time = AbsoluteTicks + noteLength
-                            currentTime = midiEvent.AbsoluteTicks;
-                            break;
-
-                        case MessageType.SystemExclusive:
-                            break;
-                        case MessageType.SystemCommon:
-                            break;
-                        case MessageType.SystemRealtime:
-                            break;
-
-                        //NOTE: mostly called by control track, except for trackName.
-                        case MessageType.Meta:
-                            MetaMessage metaMessage = midiEvent.MidiMessage as MetaMessage;
-
-                            byte[] bytes = metaMessage.GetBytes();
-                            switch (metaMessage.MetaType)
-                            {
-                                case MetaType.Tempo:
-                                    ////TODO  0.25 = 1 / timeSignature[0] ?
-                                    //double quarterToSig1 = 4 / countsPerBeat;
-                                    //double tickPerSig1 = song.Sequence.Division * quarterToSig1;
-                                    //song.ticksPerBeat = (int)(tickPerSig1 * buildee.timeSignature[0]);
-
-                                    // Bitshifting is nodig om het tempo in BPM te be
-                                    int tempo = (bytes[0] & 0xff) << 16 | (bytes[1] & 0xff) << 8 | (bytes[2] & 0xff);
-                                    songBuilder.AddTempo(60000000 / tempo);
-                                    break;
-                                case MetaType.TimeSignature:
-                                    //kwart = 1 / 0.25 = 4
-                                    int amountPerBar = bytes[0];
-                                    int countsPerBeat = (int)Math.Pow(2, bytes[1]);
-                                    ////NOTE: setting both time sigs in song and trackpart.
-                                    //songBuilder.AddTimeSignature(midiEvent.AbsoluteTicks, amountPerBar, countsPerBeat);
-
-                                    double quarterToSig1 = 4.0 / countsPerBeat;
-                                    double tickPerSig1 = sequence.Division * quarterToSig1; //ticksPerBeat
-
-                                    timeSignaturesByStartTime.Add(midiEvent.AbsoluteTicks, new int[] { amountPerBar, countsPerBeat, (int)tickPerSig1 });
-                                    ////trackPartBuilder.AddTimeSignature(amountPerBar, countsPerBeat, songBuilder.GetItem());
-                                    break;
-                                case MetaType.TrackName:
-                                    trackBuilder.AddName(Encoding.Default.GetString(metaMessage.GetBytes()));
-                                    break;
-                            }
-                            break;
-                    } //end: switch (midiEvent.MidiMessage.MessageType)
-                } //end: foreach (var midiEvent in sanfordTrack.Iterator())
-            } //end: for (int i = 0; i < sequence.Count; i++)
-
-            return songBuilder.GetItem();
+            //NOTE: currently only reading trackname for non-control tracks.
+            private void ReadMetaMessage(MidiEvent midiEvent)
+            {
+                MetaMessage metaMessage = midiEvent.MidiMessage as MetaMessage;
+                if (metaMessage.MetaType != MetaType.TrackName)
+                    return;
+                Track.Builder trackBuilder = songBuilder.CurrentTrackBuilder;
+                byte[] bytes = metaMessage.GetBytes();
+                string trackName = Encoding.Default.GetString(bytes);
+                trackBuilder.AddName(trackName);
+            }
         }
     }
 }

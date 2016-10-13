@@ -24,7 +24,7 @@ namespace DPA_Musicsheets.SanfordAdapter.Tonal
         //    Duration = duration;
         //}
 
-        public int Keycode { get { return 12 * Octave + ((int) Tone > 0 ? (int) Tone : 0) + Raise; } }
+        public int Keycode { get { return 12 * Octave + ((int) Tone > 0 ? (int) Tone : -999) + Raise; } }
         public int Octave { get; private set; }
         public Tone Tone { get; private set; }
         public int Raise { get; private set; }

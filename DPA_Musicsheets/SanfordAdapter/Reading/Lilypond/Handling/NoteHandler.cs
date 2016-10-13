@@ -15,6 +15,11 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond.Handling
         public void Handle(LilypondArraySegment.Enumerator enumerator, LilypondArraySegment allWordsIncludingKeyword, Song.Builder songBuilder)
         {
             string noteString = allWordsIncludingKeyword.ElementAt(0); //gets from offset (offset + n)
+
+            //TODO fix ~ as note symbol
+            if (noteString == "~")
+                return;
+
             Regex regex = new Regex(REGEXSTRING);
             Match match = regex.Match(noteString);
 
@@ -86,7 +91,7 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond.Handling
                 }
             }
 
-            return currentTrackPartBuilder.BaseOctave;
+            return currentTrackPartBuilder.GetItem().BaseOctave;
         }
 
         private int BaseOctave(Note previousNote, Tone currentTone)
@@ -94,6 +99,7 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond.Handling
             Tone previousTone = previousNote.Tone;
             int diff = previousTone - currentTone;
 
+            //TODO can be more than 1
             //NOTE: 6 because 12 notes in octave.
             int add = diff < -6 ? -1 : diff > 6 ? 1 : 0;
 

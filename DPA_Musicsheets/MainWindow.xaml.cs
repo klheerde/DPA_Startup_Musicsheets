@@ -40,14 +40,14 @@ namespace DPA_Musicsheets
 
         private void btnOpen_Click(object sender, RoutedEventArgs e)
         {
-            OpenFileDialog openFileDialog = new OpenFileDialog() { Filter = "Midi Files (.mid)|*.mid|Lilypond Files (.ly)|*.ly" };
+            OpenFileDialog openFileDialog = new OpenFileDialog() { Filter = "Music Files|*.mid;*.ly" };
 
             if (openFileDialog.ShowDialog() == true)
             {
                 string filePath = openFileDialog.FileName;
 
                 //NOTE: show the selected file in textbox
-                txt_MidiFilePath.Text = filePath;
+                txt_MidiFilePath.Text = openFileDialog.SafeFileName;
 
                 //editor.Text = System.IO.File.ReadAllText(filePath);
                 song = MusicReader.Singleton.Read(filePath);

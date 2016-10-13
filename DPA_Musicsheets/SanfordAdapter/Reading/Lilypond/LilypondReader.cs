@@ -12,19 +12,18 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond
     //NOTE: is singleton
     class LilypondReader : IMusicReader
     {
-        //private static string[] keywords = { "\\clef", "\\alternative", "treble", "|" };
-
         private Dictionary<Regex, IHandler> handlers = new Dictionary<Regex, IHandler>();
 
         public LilypondReader()
         {
-            ////TODO new trackpart on '{'
+            handlers.Add(new Regex(@"^{$"), new OpeningBraceHandler());
             handlers.Add(new Regex(@"^\\relative$"), new RelativeHandler());
-            handlers.Add(new Regex(@"^\\alternative$"), new AlternativeHandler());
-            handlers.Add(new Regex(@"^\\tempo$"), new TempoHandler());
+            handlers.Add(new Regex(@"^\\clef"), new ClefHandler());
             handlers.Add(new Regex(@"^\\time$"), new TimeHandler());
-            handlers.Add(new Regex(@"^\\repeat$"), new RepeatHandler());
+            handlers.Add(new Regex(@"^\\tempo$"), new TempoHandler());
             handlers.Add(new Regex(NoteHandler.REGEXSTRING), new NoteHandler());
+            handlers.Add(new Regex(@"^\\repeat$"), new RepeatHandler());
+            handlers.Add(new Regex(@"^\\alternative$"), new AlternativeHandler());
         }
 
         private string[] delimiters = { " ", "\r\n" };
@@ -61,8 +60,20 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond
             }
 
             Song song = songBuilder.GetItem();
-            song.CreateSequence();
+            //TODO song.CreateSequence();
             return songBuilder.GetItem();
+        }
+
+        public IHandler GetHandler(string regexString)
+        {
+            try
+            {
+                return handlers.First(p => p.Key.ToString() == regexString).Value;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
     }
 }
