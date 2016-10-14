@@ -49,8 +49,8 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond.Handling
             //TODO if /relative octave by previous note
             //NOTE: for now assume always /relative
             //int baseOctave = trackPartBuilder.LastAddedNote == null ? previousPartBuilder == null ? trackPartBuilder.BaseOctave : trackPartBuilder.LastAddedNote.Octave;
-            int baseOctave = BaseOctave(tone, trackPartBuilder, previousTrackPartBuilder);
-            noteBuilder.AddOctave(baseOctave + amountOctaveRaise);
+            int octave = BaseOctave(tone, trackPartBuilder, previousTrackPartBuilder);
+            noteBuilder.AddOctave(octave + amountOctaveRaise);
 
             if (countString.Length > 0)
             {
@@ -76,10 +76,15 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond.Handling
 
         private int BaseOctave(Tone tone, TrackPart.Builder currentTrackPartBuilder, TrackPart.Builder previousTrackPartBuilder)
         {
+            if (tone == Tone.R)
+                return 0;
+
+            int toneKeycode = (int)tone;
+
             if (currentTrackPartBuilder.LastAddedNote != null)
             {
                 //return currentTrackPartBuilder.LastAddedNote.Octave;
-                return BaseOctave(currentTrackPartBuilder.LastAddedNote, tone);
+                return BaseOctave(currentTrackPartBuilder.LastAddedNote.Keycode, toneKeycode);
             }
 
             if (previousTrackPartBuilder != null)
@@ -87,28 +92,34 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond.Handling
                 if (previousTrackPartBuilder.LastAddedNote != null)
                 {
                     //return previousTrackPartBuilder.LastAddedNote.Octave;
-                    return BaseOctave(previousTrackPartBuilder.LastAddedNote, tone);
+                    return BaseOctave(previousTrackPartBuilder.LastAddedNote.Keycode, toneKeycode);
                 }
             }
-
-            return currentTrackPartBuilder.GetItem().BaseOctave;
+            
+            return BaseOctave(currentTrackPartBuilder.GetItem().BaseKeycode, toneKeycode);
         }
 
-        private int BaseOctave(Note previousNote, Tone currentTone)
-        {
-            Tone previousTone = previousNote.Tone;
-            int diff = previousTone - currentTone;
+        //private int BaseOctave(Note previousNote, Tone currentTone)
+        //{
+        //    return Octave(previousNote.Keycode, (int)currentTone);
+        //    //Tone previousTone = previousNote.Tone;
+        //    //int diff = previousTone - currentTone;
 
-            //TODO can be more than 1
+        //    ////NOTE: 6 because 12 notes in octave.
+        //    //int add = diff < -6 ? -1 : diff > 6 ? 1 : 0;
+
+        //    //return previousNote.Octave + add;
+        //}
+
+        //NOTE: currentKeycode is never above 12.
+        private int BaseOctave(int previousKeycode, int currentKeycode)
+        {
+            int diff = (previousKeycode % 12) - currentKeycode;
+
             //NOTE: 6 because 12 notes in octave.
             int add = diff < -6 ? -1 : diff > 6 ? 1 : 0;
 
-            //if (diff < -6)
-            //    return previousNote.Octave + 1;
-            //else if (diff > 6)
-            //    return previousNote.Octave - 1;
-
-            return previousNote.Octave + add;
+            return previousKeycode / 12 + add;
         }
     }
 }

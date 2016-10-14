@@ -13,12 +13,9 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond.Handling
     {
         private Dictionary<string, ClefType> types = new Dictionary<string, ClefType>()
         {
-            { "G",      ClefType.GClef },
-            { "treble", ClefType.GClef },
-            { "C",      ClefType.CClef },
-            { "alto",   ClefType.CClef },
-            { "F",      ClefType.FClef },
-            { "bass",   ClefType.FClef },
+            { "G", ClefType.GClef }, { "treble", ClefType.GClef },
+            { "C", ClefType.CClef }, { "alto",   ClefType.CClef },
+            { "F", ClefType.FClef }, { "bass",   ClefType.FClef },
         };
 
         public void Handle(LilypondArraySegment.Enumerator enumerator, LilypondArraySegment allWordsIncludingKeyword, Song.Builder songBuilder)

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DPA_Musicsheets.SanfordAdapter.Tonal;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +10,7 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond.Handling
 {
     class RelativeHandler : OpeningBraceHandler
     {
-        private readonly int lilypondCenterOctaveNotes = 2;
+        private readonly int center = 2;
 
         public override void Handle(LilypondArraySegment.Enumerator enumerator, LilypondArraySegment allWordsIncludingKeyword, Song.Builder songBuilder)
         {
@@ -22,11 +23,15 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond.Handling
             Regex noteRegex = new Regex(NoteHandler.REGEXSTRING);
             Match noteMatch = noteRegex.Match(currentWord);
             if (noteMatch.Success)
-            { 
+            {
+                string toneString = noteMatch.Groups[1].Value;
                 string octaveUpString = noteMatch.Groups[4].Value;
                 string octaveDownString = noteMatch.Groups[5].Value;
                 int octave = octaveUpString.Length - octaveDownString.Length;
-                trackPartBuilder.AddBaseOctave(lilypondCenterOctaveNotes + octave);
+                //NOTE: throws if does not exists.
+                Tone tone = (Tone) Enum.Parse(typeof(Tone), toneString.ToUpper());
+                trackPartBuilder.AddBaseKeycode(12 * (octave + center) + (int)tone);
+                //trackPartBuilder.AddBaseOctave(lilypondCenterOctaveNotes + octave);
 
                 //NOTE: indicates words "//relative", some note e.g. "c'" and "{" have been handled.
                 allWordsIncludingKeyword.Start += 2;

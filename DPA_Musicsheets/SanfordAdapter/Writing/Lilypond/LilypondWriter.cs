@@ -201,7 +201,7 @@ namespace DPA_Musicsheets.SanfordAdapter.Writing.Lilypond
                     //TODO bar lines
                     foreach (Tonal.Note note in trackPart.Notes)
                         //NOTE: only very first trackParts BaseOctave used.
-                        WriteNote(note, trackPart.BaseOctave);
+                        WriteNote(note, trackPart.BaseKeycode);
                     output += END;
 
                     #region closing trackparts
@@ -217,7 +217,7 @@ namespace DPA_Musicsheets.SanfordAdapter.Writing.Lilypond
                                 output += "{ ";
                                 foreach (Tonal.Note note in alternative)
                                     //NOTE: only very first trackParts BaseOctave used.
-                                    WriteNote(note, trackPart.BaseOctave);
+                                    WriteNote(note, trackPart.BaseKeycode);
                                 output += CLOSE; // { alt row
                             }
                             output += CLOSE; //\\alternative
@@ -233,12 +233,19 @@ namespace DPA_Musicsheets.SanfordAdapter.Writing.Lilypond
             }
 
             //@"^([a-gr])((?:is)*)((?:es)*)('*)(\,*)(\d{0,2})(\.*)$"
-            private void WriteNote(Tonal.Note note, int baseOctave)
+            private void WriteNote(Tonal.Note note, int baseKeycode)
             {
                 output += note.Tone.ToString().ToLower();
-                string raise = note.Raise > 0 ? "is" : "es";
-                output += string.Concat(Enumerable.Repeat(raise, Math.Abs(note.Raise)));
-                int octaveRaise = OctaveRaise(note, baseOctave);
+
+                if (note.Tone != Tone.R)
+                {
+                    string raise = note.Raise > 0 ? "is" : "es";
+                    output += string.Concat(Enumerable.Repeat(raise, Math.Abs(note.Raise)));
+                    int octaveRaiseAmount = OctaveRaise(note, baseKeycode);
+                    string octaveRaiseString = octaveRaiseAmount > 0 ? "'" : ",";
+                    output += string.Concat(Enumerable.Repeat(octaveRaiseString, Math.Abs(octaveRaiseAmount)));
+                }
+
                 output += note.Count;
                 //output += new string('.', note.Dots);
                 if (note.Dotted)
@@ -249,18 +256,40 @@ namespace DPA_Musicsheets.SanfordAdapter.Writing.Lilypond
                     previous = note;
             }
 
-            private int OctaveRaise(Tonal.Note note, int baseOctave)
+            private int OctaveRaise(Tonal.Note note, int baseKeycode)
             {
+                int diff;
                 if (previous == null)
-                    //NOTE: not entirely true, but good for now.
-                    return note.Octave - baseOctave;
+                {
+                    //NOTE: baseOctave is C keycode.
+                    //TODO custom base octave key
+                    diff = note.Keycode - baseKeycode;
+                }
+                else
+                {
+                    int previousKeycode = previous.Keycode;
+                    int noteKeycode = note.Keycode;
+                    diff = noteKeycode - previousKeycode;
+                }
 
-                Tone currentTone = note.Tone;
-                Tone previousTone = previous.Tone;
-                int toneDiff = currentTone - previousTone;
-                int keyDiff = note.Keycode - previous.Keycode;
+                //NOTE: 12 notes in an octave.
+                int octaves = diff / 12;
+                int left = diff % 12;
 
-                return note.Octave - previous.Octave;
+                return octaves + (left > 6 ? 1 : left < -6 ? -1 : 0);
+
+                //Tone currentTone = note.Tone;
+                //Tone previousTone = previous.Tone;
+                //int toneDiff = currentTone - previousTone;
+                //int keyDiff = note.Keycode - previous.Keycode - toneDiff;
+
+                ////int add = diff < -6 ? -1 : diff > 6 ? 1 : 0;
+                //if (keyDiff < -6 || keyDiff > 6)
+                //{
+
+                //}
+
+                //return note.Octave - previous.Octave;
             }
         }
     }

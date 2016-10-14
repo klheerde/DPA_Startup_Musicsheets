@@ -9,7 +9,7 @@ namespace DPA_Musicsheets.SanfordAdapter
 {
     public class TrackPart
     {
-        public int BaseOctave { get; private set; }
+        public int BaseKeycode { get; private set; }
         public List<Note> Notes { get; private set; }
         public List<List<Note>> Alternatives { get; private set; }
 
@@ -33,8 +33,6 @@ namespace DPA_Musicsheets.SanfordAdapter
             private TrackPart buildee;
             public Note LastAddedNote { get; private set; }
 
-            private int currentAlternativeIndex = 0;
-
             public Builder() : this(new TrackPart())
             {
                 ////NOTE: only add timesig in this constructor, assume when given trackPart already has timesig.
@@ -52,9 +50,9 @@ namespace DPA_Musicsheets.SanfordAdapter
                 return this;
             } 
 
-            public Builder AddBaseOctave(int baseOctave)
+            public Builder AddBaseKeycode(int baseKeycode)
             {
-                buildee.BaseOctave = baseOctave; //was 3 +
+                buildee.BaseKeycode = baseKeycode; //was 3 +
                 return this;
             }
 
@@ -94,7 +92,10 @@ namespace DPA_Musicsheets.SanfordAdapter
                 {
                     buildee.Notes.Add(note);
                 }
-                LastAddedNote = note;
+
+                if (note.Tone != Tone.R)
+                    LastAddedNote = note;
+
                 return this;
             }
 
