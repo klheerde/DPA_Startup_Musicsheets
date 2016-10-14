@@ -140,7 +140,7 @@ namespace DPA_Musicsheets.SanfordAdapter.Writing.Lilypond
             public SongToLilypondWriter(Song song) { Song = song; }
 
             private Tonal.Note previous;
-            private bool isFirstTrackPart;
+            private bool isFirstTrackPartAfterRelative;
             private int baseKeycode;
             private int prevTimeSig0;
             private int prevTimeSig1;
@@ -173,7 +173,7 @@ namespace DPA_Musicsheets.SanfordAdapter.Writing.Lilypond
                 //NOTE: make sure to (re)set output string.
                 output = "";
                 previous = null;
-                isFirstTrackPart = true;
+                isFirstTrackPartAfterRelative = true;
                 baseKeycode = RelativeHandler.CENTER * 12;
                 prevTimeSig0 = 0;
                 prevTimeSig1 = 0;
@@ -198,16 +198,11 @@ namespace DPA_Musicsheets.SanfordAdapter.Writing.Lilypond
                 foreach (TrackPart trackPart in track.Parts)
                 {
                     #region opening trackparts
-                    bool isFirstTrackPart = this.isFirstTrackPart;
                     if (trackPart.Repeat > 1)
                         output += "\\repeat volta " + trackPart.Repeat + " {" + END;
                     //NOTE: if first trackpart brace opened from \\relative.
-                    else if (!isFirstTrackPart)
-                    {
+                    else if (!isFirstTrackPartAfterRelative)
                         output += "{" + END;
-                        ////NOTE: set this var to false, but not stack var. That happens below.
-                        //isFirstTrackPart = false;
-                    }
                     #endregion
 
                     if (trackPart.TimeSignature(0) != prevTimeSig0 || trackPart.TimeSignature(1) != prevTimeSig1)
@@ -242,14 +237,13 @@ namespace DPA_Musicsheets.SanfordAdapter.Writing.Lilypond
                             output += CLOSE; //\\alternative
                         }
                     }
-                    else if (!isFirstTrackPart)
+                    else if (!isFirstTrackPartAfterRelative)
                     {
                         output += CLOSE; //{
-                        isFirstTrackPart = false;
                     }
                     #endregion
 
-                    this.isFirstTrackPart = false;
+                    this.isFirstTrackPartAfterRelative = false;
                 }
             }
 

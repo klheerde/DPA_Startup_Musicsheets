@@ -12,6 +12,7 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Midi
     //NOTE: is singleton
     class MidiReader : IMusicReader
     {
+        public static readonly int CENTER = -2;
         public Song Read(string filePath)
         {
             var sequence = new Sequence();
@@ -32,6 +33,7 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Midi
             private Dictionary<int, int[]> timeSignaturesByStartTime = new Dictionary<int, int[]>();
             private Song.Builder songBuilder = new Song.Builder();
             private List<Note.Builder> pending = new List<Note.Builder>();
+            private Dictionary<Note, int> noteStartTimes = new Dictionary<Note, int>();
 
             public Song Convert()
             {
@@ -111,56 +113,96 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Midi
 
             }
 
+            private static readonly ChannelCommand[] HANDLED_COMMANDS = new ChannelCommand[] { ChannelCommand.NoteOn, ChannelCommand.NoteOff };
             private void ReadChannelMessage(MidiEvent midiEvent)
+            {
+                ChannelMessage channelMessage = midiEvent.MidiMessage as ChannelMessage;
+                if (!HANDLED_COMMANDS.Contains(channelMessage.Command))
+                    return;
+                //NOTE: NoteOn and velocity higher than 0 == start note
+                //vel > 0 && delta > 0 = rest.len = delta
+                if (channelMessage.Command == ChannelCommand.NoteOn && channelMessage.Data2 > 0)
+                    StartNote(midiEvent);
+                else if (channelMessage.Command == ChannelCommand.NoteOff || channelMessage.Data2 == 0) //NOTE: end of note.
+                    EndNote(midiEvent);
+                //TODO could cause issues because current time = AbsoluteTicks + noteLength
+                currentTime = midiEvent.AbsoluteTicks;
+            }
+
+            private void StartNote(MidiEvent midiEvent)
             {
                 ChannelMessage channelMessage = midiEvent.MidiMessage as ChannelMessage;
                 //NOTE: if order execution wrong will throw nullpointer exception.
                 TrackPart.Builder trackPartBuilder = songBuilder.CurrentTrackBuilder.CurrentTrackPartBuilder;
-                //NOTE: NoteOn and velocity higher than 0 == start note
-                //vel > 0 && delta > 0 = rest.len = delta
-                if (channelMessage.Command == ChannelCommand.NoteOn && channelMessage.Data2 > 0)
+                //NOTE: midi files use a lower starting point for octave notation, adjust.
+                int shiftKeycodeToCenter = CENTER * 12;
+                //NOTE: raising midi to readable level (+ shiftKeycodeToCenter). Be aware also to do this on NoteOff.
+                Note.Builder noteBuilder = new Note.Builder()
+                    .AddKeycode(channelMessage.Data1 + shiftKeycodeToCenter)
+                    .AddVelocity(channelMessage.Data2);
+                noteStartTimes.Add(noteBuilder.GetItem(), midiEvent.AbsoluteTicks);
+                pending.Add(noteBuilder);
+
+                //NOTE: current time equals previous end of note.
+                if (midiEvent.AbsoluteTicks > currentTime)
                 {
-                    Note.Builder noteBuilder = new Note.Builder()
-                        .AddKeycode(channelMessage.Data1)
-                        .AddVelocity(channelMessage.Data2)
-                        .AddStart(midiEvent.AbsoluteTicks);
+                    Note.Builder restBuilder = new Note.Builder();
+                    int restDuration = midiEvent.AbsoluteTicks - currentTime;
+                    SetNoteCounts(restBuilder, restDuration, trackPartBuilder.GetItem());
+                        //.AddStart(currentTime)
+                        //.AddEnd(midiEvent.AbsoluteTicks, trackPartBuilder.GetItem())
+                        //.GetItem();
+                    trackPartBuilder.AddNote(restBuilder.GetItem());
+                }
 
-                    pending.Add(noteBuilder);
+                //TODO use DeltaTicks:
+                //if (midiEvent.DeltaTicks > 0) //rest
+                //{
+                //    Note rest = new Note.Builder()
+                //        .AddStart(midiEvent.AbsoluteTicks)
+                //        .AddDuration(midiEvent.DeltaTicks)
+                //        .Build();
+                //    track.AddNote(rest);
+                //}
+            }
 
-                    if (midiEvent.AbsoluteTicks > currentTime)
+            private void EndNote(MidiEvent midiEvent)
+            {
+                ChannelMessage channelMessage = midiEvent.MidiMessage as ChannelMessage;
+                //NOTE: if order execution wrong will throw nullpointer exception.
+                TrackPart.Builder trackPartBuilder = songBuilder.CurrentTrackBuilder.CurrentTrackPartBuilder;
+                //NOTE: find returns first match.
+                //NOTE: raising midi to readable level (+ shiftKeycodeToCenter). Be aware also to do this on NoteOn.
+                //TODO check if first with same keycode is actually one that endss
+                Note.Builder noteBuilder = pending.Find(n => n.GetItem().Keycode == channelMessage.Data1 + CENTER * 12);
+
+                int noteStartTime = noteStartTimes[noteBuilder.GetItem()];
+                int noteDuration = midiEvent.AbsoluteTicks - noteStartTime;
+                SetNoteCounts(noteBuilder, noteDuration, trackPartBuilder.GetItem());
+
+                trackPartBuilder.AddNote(noteBuilder.GetItem());
+                pending.Remove(noteBuilder);
+                noteStartTimes.Remove(noteBuilder.GetItem());
+            }
+
+            private void SetNoteCounts(Note.Builder noteBuilder, int noteDuration, TrackPart trackPart)
+            {
+                int timeSig1 = trackPart.TimeSignature(1);
+                int ticksPerBeat = trackPart.TimeSignature(2);
+
+                double percentageOfBeatNote = (double)noteDuration / (double)ticksPerBeat;
+                double percentageOfWholeNote = (1.0 / timeSig1) * percentageOfBeatNote;
+                for (int noteLength = 1; noteLength <= 32; noteLength *= 2)
+                {
+                    double absoluteNoteLength = (1.0 / noteLength);
+                    if (percentageOfWholeNote >= absoluteNoteLength)
                     {
-                        Note rest = new Note.Builder()
-                            .AddStart(currentTime)
-                            .AddEnd(midiEvent.AbsoluteTicks, trackPartBuilder.GetItem())
-                            .GetItem();
-
-                        trackPartBuilder.AddNote(rest);
+                        noteBuilder
+                            .AddDots(absoluteNoteLength * 1.5 == percentageOfWholeNote ? 1 : 0)
+                            .AddCount(noteLength);
+                        return;
                     }
-
-                    //TODO use DeltaTicks:
-                    //if (midiEvent.DeltaTicks > 0) //rest
-                    //{
-                    //    Note rest = new Note.Builder()
-                    //        .AddStart(midiEvent.AbsoluteTicks)
-                    //        .AddDuration(midiEvent.DeltaTicks)
-                    //        .Build();
-                    //    track.AddNote(rest);
-                    //}
-
                 }
-                else if (channelMessage.Command == ChannelCommand.NoteOff || channelMessage.Data2 == 0) //NOTE: end of note.
-                {
-                    //NOTE: find returns first match.
-                    //TODO check if first with same keycode is actually one that endss
-                    Note.Builder noteBuilder = pending.Find(n => n.GetItem().Keycode == channelMessage.Data1);
-                    //TODO dont calculate Count using ticks in domain classes
-                    noteBuilder.AddEnd(midiEvent.AbsoluteTicks, trackPartBuilder.GetItem());
-                    trackPartBuilder.AddNote(noteBuilder.GetItem());
-                    pending.Remove(noteBuilder);
-                }
-
-                //TODO could cause issues because current time = AbsoluteTicks + noteLength
-                currentTime = midiEvent.AbsoluteTicks;
             }
 
             //NOTE: currently only reading trackname for non-control tracks.

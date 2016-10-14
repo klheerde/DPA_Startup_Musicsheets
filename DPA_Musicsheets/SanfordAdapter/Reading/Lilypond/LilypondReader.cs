@@ -33,6 +33,7 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond
             return ReadFromString(text);
         }
 
+        //TODO if not valid, dont crash!
         public Song ReadFromString(string fileText)
         {
             string[] words = fileText.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);

@@ -29,23 +29,23 @@ namespace DPA_Musicsheets.SanfordAdapter.Tonal
         public Tone Tone { get; private set; }
         public int Raise { get; private set; }
 
-        //TODO unnecessary?
-        private int startTime;
-        public int StartTime {
-            get { return startTime; }
-            protected set { if (value >= 0) startTime = value; }
-        }
         ////TODO unnecessary?
-        private int duration;
-        public int Duration {
-            get { return duration; }
-            protected set { if (value > 0) duration = value; }
-        }
-        //TODO unnecessary?
-        public int EndTime {
-            get { return StartTime + Duration; }
-            set { if (value > StartTime) Duration = value - StartTime; }
-        }
+        //private int startTime;
+        //public int StartTime {
+        //    get { return startTime; }
+        //    protected set { if (value >= 0) startTime = value; }
+        //}
+        ////TODO unnecessary?
+        //private int duration;
+        //public int Duration {
+        //    get { return duration; }
+        //    protected set { if (value > 0) duration = value; }
+        //}
+        ////TODO unnecessary?
+        //public int EndTime {
+        //    get { return StartTime + Duration; }
+        //    set { if (value > StartTime) Duration = value - StartTime; }
+        //}
 
         public int Count { get; private set; }
         //TODO make int Dots
@@ -98,11 +98,11 @@ namespace DPA_Musicsheets.SanfordAdapter.Tonal
                 return this;
             }
 
-            public Builder AddStart(int start)
-            {
-                buildee.StartTime = start;
-                return this;
-            }
+            //public Builder AddStart(int start)
+            //{
+            //    buildee.StartTime = start;
+            //    return this;
+            //}
 
             ////TODO change Song to TrackPart or parent reference in Note. Use TrackPart in Builder contructor as parent (force)
             //public Builder AddEnd(int end, Song song)
@@ -132,29 +132,29 @@ namespace DPA_Musicsheets.SanfordAdapter.Tonal
             //}
 
 
-            //TODO to midireader
-            public Builder AddEnd(int end, TrackPart trackPart)
-            {
-                buildee.EndTime = end;
+            ////TODO to midireader
+            //public Builder AddEnd(int end, TrackPart trackPart)
+            //{
+            //    buildee.EndTime = end;
 
-                int timeSig1 = trackPart.TimeSignature(1);
-                int ticksPerBeat = trackPart.TimeSignature(2);
+            //    int timeSig1 = trackPart.TimeSignature(1);
+            //    int ticksPerBeat = trackPart.TimeSignature(2);
 
-                double percentageOfBeatNote = (double)buildee.Duration / (double)ticksPerBeat; //ticksPerBeat
-                double percentageOfWholeNote = (1.0 / timeSig1) * percentageOfBeatNote;
-                for (int noteLength = 1; noteLength <= 32; noteLength *= 2)
-                {
-                    double absoluteNoteLength = (1.0 / noteLength);
-                    if (percentageOfWholeNote >= absoluteNoteLength)
-                    {
-                        buildee.Dotted = absoluteNoteLength * 1.5 == percentageOfWholeNote;
-                        buildee.Count = noteLength;
-                        return this;
-                    }
-                }
+            //    double percentageOfBeatNote = (double)buildee.Duration / (double)ticksPerBeat; //ticksPerBeat
+            //    double percentageOfWholeNote = (1.0 / timeSig1) * percentageOfBeatNote;
+            //    for (int noteLength = 1; noteLength <= 32; noteLength *= 2)
+            //    {
+            //        double absoluteNoteLength = (1.0 / noteLength);
+            //        if (percentageOfWholeNote >= absoluteNoteLength)
+            //        {
+            //            buildee.Dotted = absoluteNoteLength * 1.5 == percentageOfWholeNote;
+            //            buildee.Count = noteLength;
+            //            return this;
+            //        }
+            //    }
 
-                return this;
-            }
+            //    return this;
+            //}
 
             //public Builder AddDuration(int duration)
             //{

@@ -39,7 +39,7 @@ namespace DPA_Musicsheets.SanfordAdapter
                     //TODO add more display info
                     string message = "\t\t";
                     message += note.Tone == Tone.R ? "Rest, " : String.Format("Keycode: {0}, ", note.Keycode);
-                    message += String.Format("start: {0}, duration {1}", note.StartTime, note.Duration);
+                    message += String.Format("note: {0}, counts: {1}, dots: {2}", note.Tone, note.Count, note.Dotted ? 1 : 0);
                     Messages.Add(message);
                 }
             }
