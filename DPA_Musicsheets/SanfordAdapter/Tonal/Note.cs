@@ -131,6 +131,8 @@ namespace DPA_Musicsheets.SanfordAdapter.Tonal
             //    return this;
             //}
 
+
+            //TODO to midireader
             public Builder AddEnd(int end, TrackPart trackPart)
             {
                 buildee.EndTime = end;

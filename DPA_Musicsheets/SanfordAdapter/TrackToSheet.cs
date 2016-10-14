@@ -152,12 +152,13 @@ namespace DPA_Musicsheets.SanfordAdapter
                 };
             }
 
+            private List<LyricsType> _lyricType = new List<LyricsType> { LyricsType.Middle };
             private void RepeatHack(string text)
             {
                 //NOTE: set note to bar length.
                 MusicalSymbolDuration duration = (MusicalSymbolDuration) (previousTimeSig0 * previousTimeSig1);
                 Note repeatHack = new Note("G", 0, 5, duration, NoteStemDirection.Down, NoteTieType.None, new List<NoteBeamType>() { NoteBeamType.Single });
-                repeatHack.Lyrics = new List<LyricsType> { LyricsType.Middle };
+                repeatHack.Lyrics = _lyricType;
                 repeatHack.LyricTexts = new List<string> { text };
                 Viewer.AddMusicalSymbol(repeatHack);
                 Viewer.AddMusicalSymbol(new Barline());

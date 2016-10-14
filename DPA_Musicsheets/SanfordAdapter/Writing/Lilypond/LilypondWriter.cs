@@ -1,4 +1,5 @@
-﻿using DPA_Musicsheets.SanfordAdapter.Tonal;
+﻿using DPA_Musicsheets.SanfordAdapter.Reading.Lilypond.Handling;
+using DPA_Musicsheets.SanfordAdapter.Tonal;
 using PSAMControlLibrary;
 using System;
 using System.Collections.Generic;
@@ -139,7 +140,8 @@ namespace DPA_Musicsheets.SanfordAdapter.Writing.Lilypond
             public SongToLilypondWriter(Song song) { Song = song; }
 
             private Tonal.Note previous;
-            private bool firstTrackPart;
+            private bool isFirstTrackPart;
+            private int baseKeycode;
             private int prevTimeSig0;
             private int prevTimeSig1;
             private string output;
@@ -148,8 +150,10 @@ namespace DPA_Musicsheets.SanfordAdapter.Writing.Lilypond
             {
                 Reset();
 
-                //TODO base octave
-                output += "\\relative c' {" + END;
+                output += "\\relative ";
+                WriteBaseNote();
+                output += "{" + END;
+
                 //NOTE: all clefs handled so no out of bounds.
                 output += "\\clef " + CLEF_TO_STRING[Song.Clef] + END;
                 //TODO tempo by beat note
@@ -169,29 +173,44 @@ namespace DPA_Musicsheets.SanfordAdapter.Writing.Lilypond
                 //NOTE: make sure to (re)set output string.
                 output = "";
                 previous = null;
-                firstTrackPart = true;
+                isFirstTrackPart = true;
+                baseKeycode = RelativeHandler.CENTER * 12;
                 prevTimeSig0 = 0;
                 prevTimeSig1 = 0;
             }
 
+            private void WriteBaseNote()
+            {
+                Tonal.Note baseNote = null;
+                if (Song.Tracks.Count > 0 && Song.Tracks.First().Parts.Count > 0 && 
+                    (baseNote = Song.Tracks.First().Parts.First().BaseNote) != null)
+                {
+                    WriteNote(baseNote, baseKeycode, false);
+                }
+                else
+                {
+                    output += "c ";
+                }
+            }
+
             private void WriteTrack(Track track)
             {
-                bool isFirstTrackPart = firstTrackPart;
                 foreach (TrackPart trackPart in track.Parts)
                 {
                     #region opening trackparts
+                    bool isFirstTrackPart = this.isFirstTrackPart;
                     if (trackPart.Repeat > 1)
                         output += "\\repeat volta " + trackPart.Repeat + " {" + END;
                     //NOTE: if first trackpart brace opened from \\relative.
                     else if (!isFirstTrackPart)
                     {
                         output += "{" + END;
-                        //NOTE: set this var to false, but not stack var. That happens below.
-                        firstTrackPart = false;
+                        ////NOTE: set this var to false, but not stack var. That happens below.
+                        //isFirstTrackPart = false;
                     }
                     #endregion
 
-                    if (trackPart.TimeSignature(0) != prevTimeSig0 && trackPart.TimeSignature(1) != prevTimeSig1)
+                    if (trackPart.TimeSignature(0) != prevTimeSig0 || trackPart.TimeSignature(1) != prevTimeSig1)
                     {
                         output += "\\time " + trackPart.TimeSignature(0) + "/" + trackPart.TimeSignature(1) + END;
                         prevTimeSig0 = trackPart.TimeSignature(0);
@@ -201,7 +220,7 @@ namespace DPA_Musicsheets.SanfordAdapter.Writing.Lilypond
                     //TODO bar lines
                     foreach (Tonal.Note note in trackPart.Notes)
                         //NOTE: only very first trackParts BaseOctave used.
-                        WriteNote(note, trackPart.BaseKeycode);
+                        WriteNote(note, trackPart.BaseNote == null ? this.baseKeycode : trackPart.BaseNote.Keycode);
                     output += END;
 
                     #region closing trackparts
@@ -217,7 +236,7 @@ namespace DPA_Musicsheets.SanfordAdapter.Writing.Lilypond
                                 output += "{ ";
                                 foreach (Tonal.Note note in alternative)
                                     //NOTE: only very first trackParts BaseOctave used.
-                                    WriteNote(note, trackPart.BaseKeycode);
+                                    WriteNote(note, trackPart.BaseNote == null ? this.baseKeycode : trackPart.BaseNote.Keycode);
                                 output += CLOSE; // { alt row
                             }
                             output += CLOSE; //\\alternative
@@ -229,11 +248,13 @@ namespace DPA_Musicsheets.SanfordAdapter.Writing.Lilypond
                         isFirstTrackPart = false;
                     }
                     #endregion
+
+                    this.isFirstTrackPart = false;
                 }
             }
 
             //@"^([a-gr])((?:is)*)((?:es)*)('*)(\,*)(\d{0,2})(\.*)$"
-            private void WriteNote(Tonal.Note note, int baseKeycode)
+            private void WriteNote(Tonal.Note note, int baseKeycode, bool setPrevious = true)
             {
                 output += note.Tone.ToString().ToLower();
 
@@ -252,7 +273,7 @@ namespace DPA_Musicsheets.SanfordAdapter.Writing.Lilypond
                     output += ".";
                 output += " ";
 
-                if (note.Tone != Tone.R)
+                if (setPrevious && note.Tone != Tone.R)
                     previous = note;
             }
 
@@ -275,6 +296,8 @@ namespace DPA_Musicsheets.SanfordAdapter.Writing.Lilypond
                 //NOTE: 12 notes in an octave.
                 int octaves = diff / 12;
                 int left = diff % 12;
+
+                this.baseKeycode = baseKeycode;
 
                 return octaves + (left > 6 ? 1 : left < -6 ? -1 : 0);
 

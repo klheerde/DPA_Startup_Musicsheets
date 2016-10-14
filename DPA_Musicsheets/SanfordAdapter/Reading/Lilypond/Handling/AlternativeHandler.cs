@@ -32,7 +32,10 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond.Handling
                         trackPartBuilder.AddAlternative();
                         break;
                     //NOTE: do nothing.
-                    case "|": break;
+                    //TODO create handler ~ ddoorklinken
+                    case "~":
+                    case "|":
+                        break;
                     case "}":
                         //NOTE: two closing braces means done with alternative. do ++'s and return.
                         if (previousWord != "}")

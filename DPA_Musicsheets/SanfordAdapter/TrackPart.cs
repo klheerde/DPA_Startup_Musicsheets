@@ -9,7 +9,7 @@ namespace DPA_Musicsheets.SanfordAdapter
 {
     public class TrackPart
     {
-        public int BaseKeycode { get; private set; }
+        public Note BaseNote { get; private set; }
         public List<Note> Notes { get; private set; }
         public List<List<Note>> Alternatives { get; private set; }
 
@@ -50,9 +50,9 @@ namespace DPA_Musicsheets.SanfordAdapter
                 return this;
             } 
 
-            public Builder AddBaseKeycode(int baseKeycode)
+            public Builder AddBaseNote(Note baseNote)
             {
-                buildee.BaseKeycode = baseKeycode; //was 3 +
+                buildee.BaseNote = baseNote;
                 return this;
             }
 
