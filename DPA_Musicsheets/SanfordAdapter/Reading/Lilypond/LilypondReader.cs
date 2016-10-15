@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond
 {
@@ -36,33 +37,43 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond
         //TODO if not valid, dont crash!
         public Song ReadFromString(string fileText)
         {
-            string[] words = fileText.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
-            LilypondArraySegment segment = new LilypondArraySegment(words);
-            Song.Builder songBuilder = new Song.Builder();
-
-            LilypondArraySegment.Enumerator enumerator = segment.GetEnumerator() as LilypondArraySegment.Enumerator;
-            while (enumerator.MoveNext())
+            try
             {
-                string word = enumerator.Current;
-                foreach (Regex regex in handlers.Keys)
+                string[] words = fileText.Split(delimiters, StringSplitOptions.RemoveEmptyEntries);
+                LilypondArraySegment segment = new LilypondArraySegment(words);
+                Song.Builder songBuilder = new Song.Builder();
+
+                LilypondArraySegment.Enumerator enumerator = segment.GetEnumerator() as LilypondArraySegment.Enumerator;
+                while (enumerator.MoveNext())
                 {
-                    if (regex.Match(word).Success)
+                    string word = enumerator.Current;
+                    foreach (Regex regex in handlers.Keys)
                     {
-                        //LilypondArraySegment segment = new LilypondArraySegment(words, index, words.Length - 1);
-                        IHandler handler = handlers[regex];
-                        handler.Handle(enumerator, segment, songBuilder);
-                        break;
+                        if (regex.Match(word).Success)
+                        {
+                            //LilypondArraySegment segment = new LilypondArraySegment(words, index, words.Length - 1);
+                            IHandler handler = handlers[regex];
+                            handler.Handle(enumerator, segment, songBuilder);
+                            break;
+                        }
                     }
+
+                    //NOTE: indicates word has been handled.
+                    segment.Start += 1;
+                    //NOTE: CurrentIndex is auto incemented.
                 }
 
-                //NOTE: indicates word has been handled.
-                segment.Start += 1;
-                //NOTE: CurrentIndex is auto incemented.
+                Song song = songBuilder.GetItem();
+                //TODO song.CreateSequence();
+                return songBuilder.GetItem();
             }
-
-            Song song = songBuilder.GetItem();
-            //TODO song.CreateSequence();
-            return songBuilder.GetItem();
+            catch (Exception e)
+            {
+                string errorTitle = "Bad lilypond";
+                string errorMessage = "Reading lilypond failed."/* + System.Environment.NewLine/* + e.Message*/;
+                MessageBox.Show(errorMessage, errorTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
+                return null;
+            }
         }
 
         public IHandler GetHandler(string regexString)

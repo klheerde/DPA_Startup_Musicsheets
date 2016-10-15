@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -32,28 +33,38 @@ namespace DPA_Musicsheets
         private Player player = new Player();
         private Song song;
 
+        private EditorWrapper editorWrapper;
+
         public MainWindow()
         {
             InitializeComponent();
             DataContext = trackViewModels;
+
+            ElapsedEventHandler handler = new ElapsedEventHandler(editorTypeFinished);
+            editorWrapper = new EditorWrapper(editor, handler);
         }
 
         private void btnOpen_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog = new OpenFileDialog() { Filter = "Music Files|*.mid;*.ly" };
 
-            if (openFileDialog.ShowDialog() == true)
+            if (openFileDialog.ShowDialog() != true)
+                return;
+            string filePath = openFileDialog.FileName;
+            //NOTE: show the selected file in textbox
+            txt_MidiFilePath.Text = openFileDialog.SafeFileName;
+
+            song = MusicReader.Singleton.Read(filePath);
+            if (song == null)
+                return;
+            string lilypond = new LilypondWriter().Write(song);
+            if (lilypond != null)
             {
-                string filePath = openFileDialog.FileName;
-
-                //NOTE: show the selected file in textbox
-                txt_MidiFilePath.Text = openFileDialog.SafeFileName;
-
-                //editor.Text = System.IO.File.ReadAllText(filePath);
-                song = MusicReader.Singleton.Read(filePath);
-                editor.Text = new LilypondWriter().Write(song);
-                ShowMidiTracks();
+                editorWrapper.Stop();
+                editor.Text = lilypond;
+                editorWrapper.Go();
             }
+            ShowMidiTracks();
         }
 
         private void ShowMidiTracks()
@@ -67,11 +78,17 @@ namespace DPA_Musicsheets
             tabCtrl_MidiContent.SelectedIndex = 0;
         }
 
-        private void btnEdit_Click(object sender, RoutedEventArgs e)
-        {
-            LilypondReader lilyReader = MusicReader.Singleton.Readers["ly"] as LilypondReader;
-            song = lilyReader.ReadFromString(editor.Text);
-            ShowMidiTracks();
+        private void editorTypeFinished(object sender, ElapsedEventArgs e) {
+            btnEdit_Click(sender, null);
+        }
+        private void btnEdit_Click(object sender, RoutedEventArgs e) {
+            this.Dispatcher.Invoke(() =>
+            {
+               LilypondReader lilyReader = MusicReader.Singleton.Readers["ly"] as LilypondReader;
+                song = lilyReader.ReadFromString(editor.Text);
+                if (song != null)
+                    ShowMidiTracks();
+            });
         }
 
         private void btnPlay_Click(object sender, RoutedEventArgs e)

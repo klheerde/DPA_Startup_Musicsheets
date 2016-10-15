@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Sanford.Multimedia.Midi;
+using System.Windows;
 
 namespace DPA_Musicsheets.SanfordAdapter.Reading
 {
@@ -41,8 +42,18 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading
 
             if (Readers.Keys.Contains(fileExtension))
             {
-                IMusicReader reader = Readers[fileExtension];
-                return reader.Read(filePath);
+                try
+                {
+                    IMusicReader reader = Readers[fileExtension];
+                    return reader.Read(filePath);
+                }
+                catch (Exception)
+                {
+                    string errorTitle = "Bad file";
+                    string errorMessage = "Reading file failed."/* + System.Environment.NewLine/* + e.Message*/;
+                    MessageBox.Show(errorMessage, errorTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return null;
+                }
             }
 
             return null;

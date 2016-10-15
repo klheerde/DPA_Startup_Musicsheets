@@ -1,0 +1,14 @@
+Domeinklassen
+	?­ Structuurpatroon gebruikt om rusten/noten/etc te kunnen representeren
+	X ­ Met juiste patronen toekomstige requirements (bv: vibrato of sterkte) ondersteund, zonder bestaande domeinklassen aan te hoeven passen
+
+Midi
+	? Creatiepatroon kan noten maken zonder switch/if/else
+
+Noten weergeven
+	? Behavioural patroon gebruikt voor het creëren van WPF noten
+	X ­ Er is geen if/else/switch nodig voor verschillende soorten objecten (Note, Rest, etc)
+	X Balken worden toegevoegd wanneer het buiten beeld zou vallen
+
+Lilypond
+	X Met juiste patronen toekomstige requirements (bv: vibrato of sterkte) ondersteund

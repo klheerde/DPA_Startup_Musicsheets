@@ -68,6 +68,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="SanfordAdapter\Editor.cs" />
     <Compile Include="SanfordAdapter\Reading\IMusicReader.cs" />
     <Compile Include="SanfordAdapter\Reading\Lilypond\Handling\OpeningBraceHandler.cs" />
     <Compile Include="SanfordAdapter\Reading\Lilypond\Handling\AlternativeHandler.cs" />

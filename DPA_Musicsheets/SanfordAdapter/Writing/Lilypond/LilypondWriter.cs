@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace DPA_Musicsheets.SanfordAdapter.Writing.Lilypond
 {
@@ -150,21 +151,31 @@ namespace DPA_Musicsheets.SanfordAdapter.Writing.Lilypond
             {
                 Reset();
 
-                output += "\\relative ";
-                WriteBaseNote();
-                output += "{" + END;
+                try
+                {
+                    output += "\\relative ";
+                    WriteBaseNote();
+                    output += "{" + END;
 
-                //NOTE: all clefs handled so no out of bounds.
-                output += "\\clef " + CLEF_TO_STRING[Song.Clef] + END;
-                //TODO tempo by beat note
-                output += "\\tempo 4=" + Song.Tempo + END;
+                    //NOTE: all clefs handled so no out of bounds.
+                    output += "\\clef " + CLEF_TO_STRING[Song.Clef] + END;
+                    //TODO tempo by beat note
+                    output += "\\tempo 4=" + Song.Tempo + END;
 
-                foreach (Track track in Song.Tracks)
-                    WriteTrack(track);
+                    foreach (Track track in Song.Tracks)
+                        WriteTrack(track);
 
-                output += CLOSE; //\\relative
+                    output += CLOSE; //\\relative
 
-                return output;
+                    return output;
+                }
+                catch (Exception e)
+                {
+                    string errorTitle = "Bad Song";
+                    string errorMessage = "Reading Song failed."/* + System.Environment.NewLine/* + e.Message*/;
+                    MessageBox.Show(errorMessage, errorTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return null;
+                }
             }
 
             //NOTE: failsafe if multiple usage of same SongToLilypondWriter object.
