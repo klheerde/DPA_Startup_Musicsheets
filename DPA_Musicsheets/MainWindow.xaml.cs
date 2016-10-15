@@ -47,13 +47,19 @@ namespace DPA_Musicsheets
             editorWrapper = new EditorWrapper(editor);
             //NOTE: set function to be called when Song created after auto compile.
             editorWrapper.AddHandler(new Action<Song>(Editor_TimerElapsed));
-
-            keyBinder = new KeyBinder(this);
-            SaveHandler saveHandler = keyBinder.Handlers.OfType<SaveHandler>().First();
-            saveHandler.EditorWrapper = editorWrapper;
+            SetMainWindowKeyBindings();
         }
 
-        private void btnOpen_Click(object sender, RoutedEventArgs e)
+        private void SetMainWindowKeyBindings()
+        {
+            //keyBinder = new KeyBinder(this);
+            ////NOTE: keybinding applied to general app.
+            //keyBinder.Handlers.Add(new SaveHandler(editorWrapper));
+            //keyBinder.Handlers.Add(new OpenHandler(Open));
+            //keyBinder.Handlers.Add(new PdfHandler());
+        }
+
+        private void Open()
         {
             OpenFileDialog openFileDialog = new OpenFileDialog() { Filter = "Music Files|*.mid;*.ly" };
 
@@ -95,6 +101,10 @@ namespace DPA_Musicsheets
                 ShowMidiTracks();
         }
 
+        private void btnOpen_Click(object sender, RoutedEventArgs e)
+        {
+            Open();
+        }
         private void btnSave_Click(object sender, RoutedEventArgs e)
         {
             editorWrapper.Save();
@@ -114,6 +124,7 @@ namespace DPA_Musicsheets
         }
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
+            //TODO is saved?
             if (player != null)
                 player.Dispose();
         }

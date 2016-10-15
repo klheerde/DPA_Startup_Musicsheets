@@ -9,12 +9,17 @@ using ModKeys = System.Windows.Input.ModifierKeys;
 
 namespace DPA_Musicsheets.KeyHandling
 {
-    class SampleHandler : IKeyHandler
+    class OpenHandler : IKeyHandler
     {
-        public Key[] Keys { get; private set; } = new Key[] { Key.LeftCtrl, Key.P, Key.S };
+        public Action OpenFunc { get; set; }
+        public Key[] Keys { get; private set; } = new Key[] { Key.LeftCtrl, Key.O };
+
+        public OpenHandler() { }
+        public OpenHandler(Action action) { OpenFunc = action; }
+
         public void Handle()
         {
-            MessageBox.Show("ehkfhkdsjgh");
+            OpenFunc?.Invoke();
         }
     }
 }

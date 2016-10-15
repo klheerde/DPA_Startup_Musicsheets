@@ -1,4 +1,5 @@
-﻿using DPA_Musicsheets.SanfordAdapter;
+﻿using DPA_Musicsheets.KeyHandling;
+using DPA_Musicsheets.SanfordAdapter;
 using DPA_Musicsheets.SanfordAdapter.Reading;
 using DPA_Musicsheets.SanfordAdapter.Reading.Lilypond;
 using System;
@@ -21,6 +22,8 @@ namespace DPA_Musicsheets
         private bool saved; //defaults to false
         private TextBox textBox;
 
+        private KeyBinder keyBinder;
+
         private List<Action<Song>> handlers = new List<Action<Song>>();
 
         //NOTE: string is reference type.
@@ -35,6 +38,7 @@ namespace DPA_Musicsheets
             timer.Elapsed += new ElapsedEventHandler(Timer_Elapsed);
             //NOTE: initialte function to be called when text changed.
             textBox.TextChanged += TextBox_TextChanged;
+            SetEditorKeyBindings();
         }
 
         public void Read()
@@ -76,6 +80,20 @@ namespace DPA_Musicsheets
             //TODO save to file
             saved = true;
             MessageBox.Show("eeeh");
+        }
+
+        private void SetEditorKeyBindings()
+        {
+            keyBinder = new KeyBinder(textBox);
+            keyBinder.Handlers.Add(new InsertClefHandler(InsertClef));
+        }
+
+        private void InsertClef()
+        {
+            string insertText = "\\cleff = treble";
+            int selectionIndex = textBox.SelectionStart;
+            textBox.Text = textBox.Text.Insert(selectionIndex, insertText);
+            textBox.SelectionStart = selectionIndex + insertText.Length;
         }
 
         #region text change timer

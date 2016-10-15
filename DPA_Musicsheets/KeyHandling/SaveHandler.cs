@@ -13,6 +13,10 @@ namespace DPA_Musicsheets.KeyHandling
     {
         public EditorWrapper EditorWrapper { get; set; }
         public Key[] Keys { get; private set; } = new Key[] { Key.LeftCtrl, Key.S };
+
+        public SaveHandler() { }
+        public SaveHandler(EditorWrapper editorWrapper) { EditorWrapper = editorWrapper; }
+
         public void Handle()
         {
             if (EditorWrapper == null)

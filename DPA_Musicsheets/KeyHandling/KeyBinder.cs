@@ -15,24 +15,18 @@ namespace DPA_Musicsheets.KeyHandling
         public UIElement Element { get; private set; }
         public List<Key> PressedKeys { get; private set; } = new List<Key>();
         public List<IKeyHandler> Handlers { get; private set; } = new List<IKeyHandler>();
-        public KeyBinder(UIElement element = null)
+        public KeyBinder(UIElement element)
         {
             Element = element;
-            //NOTE: default general binding are added here. Specific handlers are added 
-            Handlers.Add(new SaveHandler());
-            Handlers.Add(new SampleHandler());
-            //
-            if (element != null)
-                AddBindingsToUiElement(element);
-        }
-
-        public void AddBindingsToUiElement(UIElement element)
-        {
             element.KeyDown += Element_KeyDown;
             element.KeyUp += Element_KeyUp;
-            //foreach (IKeyHandler handler in Handlers)
-            //element.CommandBindings.Add(HandlerToCommandBinding(handler));
         }
+
+        //public void AddBindingsToUiElement(UIElement element)
+        //{
+        //    //foreach (IKeyHandler handler in Handlers)
+        //    //element.CommandBindings.Add(HandlerToCommandBinding(handler));
+        //}
 
         //NOTE: key up, save in array.
         private void Element_KeyDown(object sender, KeyEventArgs e)
@@ -44,7 +38,7 @@ namespace DPA_Musicsheets.KeyHandling
             //TODO first key must be modifier
             if (PressedKeys.Contains(e.Key))
                 return;
-            PressedKeys.Add(e.Key);
+            PressedKeys.Add(e.Key == Key.System ? e.SystemKey : e.Key);
             CheckHandlers();
         }
 
@@ -76,7 +70,7 @@ namespace DPA_Musicsheets.KeyHandling
 
         private void Element_KeyUp(object sender, KeyEventArgs e)
         {
-            PressedKeys.Remove(e.Key);
+            PressedKeys.Remove(e.Key == Key.System ? e.SystemKey : e.Key);
             if (PressedKeys.Count > 0 || currentHandler == null)
                 return;
             currentHandler.Handle();
