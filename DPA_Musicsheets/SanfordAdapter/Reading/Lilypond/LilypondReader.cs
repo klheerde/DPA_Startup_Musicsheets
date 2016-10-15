@@ -34,7 +34,6 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond
             return ReadFromString(text);
         }
 
-        //TODO if not valid, dont crash!
         public Song ReadFromString(string fileText)
         {
             try
@@ -67,7 +66,7 @@ namespace DPA_Musicsheets.SanfordAdapter.Reading.Lilypond
                 //TODO song.CreateSequence();
                 return songBuilder.GetItem();
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 string errorTitle = "Bad lilypond";
                 string errorMessage = "Reading lilypond failed."/* + System.Environment.NewLine/* + e.Message*/;

@@ -68,7 +68,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="SanfordAdapter\Editor.cs" />
+    <Compile Include="EditorWrapper.cs" />
+    <Compile Include="KeyHandling\KeyBinder.cs" />
+    <Compile Include="KeyHandling\IKeyHandler.cs" />
+    <Compile Include="KeyHandling\SampleHandler.cs" />
+    <Compile Include="KeyHandling\SaveHandler.cs" />
     <Compile Include="SanfordAdapter\Reading\IMusicReader.cs" />
     <Compile Include="SanfordAdapter\Reading\Lilypond\Handling\OpeningBraceHandler.cs" />
     <Compile Include="SanfordAdapter\Reading\Lilypond\Handling\AlternativeHandler.cs" />
@@ -89,7 +93,6 @@
     <Compile Include="SanfordAdapter\Tonal\Note.cs" />
     <Compile Include="SanfordAdapter\Player.cs" />
     <Compile Include="SanfordAdapter\Song.cs" />
-    <Compile Include="MidiTrack.cs" />
     <Compile Include="SanfordAdapter\Track.cs" />
     <Compile Include="SanfordAdapter\TrackPart.cs" />
     <Compile Include="SanfordAdapter\TrackToSheet.cs" />
@@ -111,7 +114,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MidiPlayer.cs" />
-    <Compile Include="MidiReader.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

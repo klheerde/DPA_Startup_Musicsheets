@@ -169,7 +169,7 @@ namespace DPA_Musicsheets.SanfordAdapter.Writing.Lilypond
 
                     return output;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     string errorTitle = "Bad Song";
                     string errorMessage = "Reading Song failed."/* + System.Environment.NewLine/* + e.Message*/;
