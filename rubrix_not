@@ -12,3 +12,10 @@ Noten weergeven
 
 Lilypond
 	X Met juiste patronen toekomstige requirements (bv: vibrato of sterkte) ondersteund
+
+Editor 1
+	X ­ State pattern óf memento pattern volgens de regels geïmplementeerd
+
+Editor 2
+	X De mogelijkheid om keystrokes ná elkaar te doen (ALT A, ALT P is als PDF opslaan bijv.).
+

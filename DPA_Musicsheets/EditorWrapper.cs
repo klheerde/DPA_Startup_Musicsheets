@@ -104,7 +104,7 @@ namespace DPA_Musicsheets
             Saved = false;
         }
 
-        public void Save()
+        public bool Save()
         {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.Filter = "lilypond files |*.ly";
@@ -113,11 +113,12 @@ namespace DPA_Musicsheets
             if (savedFile != null)
                 saveFileDialog.FileName = savedFile;
             if (saveFileDialog.ShowDialog() != true)
-                return;
+                return false;
             System.IO.File.WriteAllText(saveFileDialog.FileName, textBox.Text);
             savedFilePath = saveFileDialog.FileName;
             savedFile = saveFileDialog.SafeFileName;
             Saved = true;
+            return true;
         }
 
         public void SaveAsPdf()

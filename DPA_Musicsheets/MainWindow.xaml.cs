@@ -140,8 +140,19 @@ namespace DPA_Musicsheets
             //TODO is saved?
             if (player != null)
                 player.Dispose();
-            if (!editorWrapper.Saved)
-                editorWrapper.Save();
+            if (editorWrapper.Saved)
+                return;
+
+            switch (MessageBox.Show("Do you want to save before closing?", "File not saved", MessageBoxButton.YesNoCancel))
+            {
+                case MessageBoxResult.Yes:
+                    if (!editorWrapper.Save())
+                        goto case MessageBoxResult.Cancel;
+                    break;
+                case MessageBoxResult.Cancel:
+                    e.Cancel = true;
+                    break;
+            }
         }
         private void tabCtrl_MidiContent_SelectedIndexChanged(object sender, EventArgs e)
         {
