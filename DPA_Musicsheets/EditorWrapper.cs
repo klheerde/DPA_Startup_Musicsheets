@@ -6,6 +6,8 @@ using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,6 +28,7 @@ namespace DPA_Musicsheets
         private TextBox textBox;
         private KeyBinder keyBinder;
         private string savedFile = null;
+        private string savedFilePath = null;
 
         private List<Action<Song>> handlers = new List<Action<Song>>();
 
@@ -112,8 +115,65 @@ namespace DPA_Musicsheets
             if (saveFileDialog.ShowDialog() != true)
                 return;
             System.IO.File.WriteAllText(saveFileDialog.FileName, textBox.Text);
+            savedFilePath = saveFileDialog.FileName;
             savedFile = saveFileDialog.SafeFileName;
             Saved = true;
+        }
+
+        public void SaveAsPdf()
+        {
+            #region temp file
+            //SaveFileDialog saveFileDialog = new SaveFileDialog();
+            //saveFileDialog.Filter = "pdf files |*.pdf";
+            //saveFileDialog.FilterIndex = 2;
+            //saveFileDialog.RestoreDirectory = true;
+            //if (savedFile != null)
+            //    saveFileDialog.FileName = savedFile;
+            //if (saveFileDialog.ShowDialog() != true)
+            //    return;
+
+            ////NOTE: save temporarily.
+            //string currentFolder = Directory.GetCurrentDirectory();
+            //string tempFolder = currentFolder + @"\temp\";
+            ////NOTE: if temp folder in current dir does not exist, create.
+            //if (!Directory.Exists(tempFolder))
+            //    Directory.CreateDirectory(tempFolder);
+            //string tempFile = "tmp_ly";
+            //string tempPath = tempFolder + tempFile;
+            ////NOTE: set temp file to path + extension.
+            //System.IO.File.WriteAllText(tempPath + ".ly", textBox.Text);
+            #endregion
+
+            if (!Saved)
+                Save();
+            if (!Saved)
+                return;
+
+            string directory = savedFilePath.Remove(savedFilePath.Length - savedFile.Length);
+            string fileWithoutExt = savedFile.Remove(savedFile.Length - ".ly".Length);
+            string pathWithoutExt = directory + fileWithoutExt;
+            //NOTE: convert from temp file to pdf.
+            string lilypondLocation = @"C:\Program Files (x86)\LilyPond\usr\bin\lilypond.exe";
+            var process = new Process
+            {
+                StartInfo =
+                {
+                    WorkingDirectory = directory, //tempFolder,
+                    WindowStyle = ProcessWindowStyle.Hidden,
+                    //NOTE: find file using path + extension.
+                    Arguments = String.Format("--pdf \"{0}\"", savedFilePath), //tempPath + ".ly"),
+                    FileName = lilypondLocation
+                }
+            };
+
+            process.Start();
+            while (!process.HasExited)
+            { /* Wait for exit */ }
+
+            ////NOTE: find created file using path + .pdf.
+            //File.Copy(pathWithoutExt + ".pdf", saveFileDialog.FileName, true);
+            //File.Copy(tempPath + ".pdf", saveFileDialog.FileName, true);
+            MessageBox.Show("PDF file created");
         }
 
         private void SetEditorKeyBindings()
@@ -136,7 +196,7 @@ namespace DPA_Musicsheets
             textBox.SelectionStart = selectionIndex + text.Length;
         }
 
-        private void InsertClef() { InsertText("\\cleff treble"); }
+        private void InsertClef() { InsertText("\\clef treble"); }
         private void InsertTempo() { InsertText("\\tempo 4=120"); }
         private void InsertTime() { InsertText("\\time 4/4"); }
         private void InsertTime3() { InsertText("\\time 3/4"); }

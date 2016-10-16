@@ -35,3 +35,4 @@ C:\Users\kenva\School\blok13\design patterns\DPA_Startup_Musicsheets\DPA_Musicsh
 C:\Users\kenva\School\blok13\design patterns\DPA_Startup_Musicsheets\DPA_Musicsheets\obj\Debug\DPA_Musicsheets.csproj.GenerateResource.Cache
 C:\Users\kenva\School\blok13\design patterns\DPA_Startup_Musicsheets\DPA_Musicsheets\obj\Debug\DPA_Musicsheets.exe
 C:\Users\kenva\School\blok13\design patterns\DPA_Startup_Musicsheets\DPA_Musicsheets\obj\Debug\DPA_Musicsheets.pdb
+C:\Users\kenva\School\blok13\design patterns\DPA_Startup_Musicsheets\DPA_Musicsheets\obj\Debug\DPA_Musicsheets.csprojResolveAssemblyReference.cache

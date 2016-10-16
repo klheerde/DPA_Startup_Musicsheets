@@ -48,12 +48,12 @@ namespace DPA_Musicsheets
             DataContext = trackViewModels;
 
             KeyBinder.MainWindow = this;
-            keyBinder = new KeyBinder(this);
-            SetMainWindowKeyBindings();
-
             editorWrapper = new EditorWrapper(editor);
             //NOTE: set function to be called when Song created after auto compile.
             editorWrapper.AddHandler(new Action<Song>(Editor_TimerElapsed));
+
+            keyBinder = new KeyBinder(this);
+            SetMainWindowKeyBindings();
         }
 
         private void SetMainWindowKeyBindings()
@@ -61,7 +61,7 @@ namespace DPA_Musicsheets
             //NOTE: keybinding applied to general app.
             keyBinder.Handlers.Add(new SaveHandler(editorWrapper));
             keyBinder.Handlers.Add(new OpenHandler(Open));
-            keyBinder.Handlers.Add(new PdfHandler());
+            keyBinder.Handlers.Add(new PdfHandler(editorWrapper));
         }
 
         private void Open()

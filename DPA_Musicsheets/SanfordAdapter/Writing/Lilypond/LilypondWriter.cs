@@ -155,6 +155,8 @@ namespace DPA_Musicsheets.SanfordAdapter.Writing.Lilypond
                 {
                     output += "\\relative ";
                     WriteBaseNote();
+                    //NOTE: remove count ('0') char.
+                    output = output.Remove(output.Length - 2, 1);
                     output += "{" + END;
 
                     //NOTE: all clefs handled so no out of bounds.
