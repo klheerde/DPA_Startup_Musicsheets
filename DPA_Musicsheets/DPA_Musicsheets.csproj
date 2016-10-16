@@ -69,6 +69,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="EditorWrapper.cs" />
+    <Compile Include="KeyHandling\KeyHandler.cs" />
+    <Compile Include="KeyHandling\InsertTempoHandler.cs" />
     <Compile Include="KeyHandling\KeyBinder.cs" />
     <Compile Include="KeyHandling\IKeyHandler.cs" />
     <Compile Include="KeyHandling\OpenHandler.cs" />

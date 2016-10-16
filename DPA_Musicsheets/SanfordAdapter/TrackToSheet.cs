@@ -60,7 +60,17 @@ namespace DPA_Musicsheets.SanfordAdapter
             private void WriteNoteList(TrackPart trackPart, List<Tonal.Note> notes)
             {
                 //NOTE: [2] = ticksPerBeat, [3] = ticksPerBar.
-                int[] timeSignatures = GetTimeSignatures(trackPart);
+                int[] timeSignatures;
+                try
+                {
+                    timeSignatures = GetTimeSignatures(trackPart);
+                }
+                catch (Exception)
+                {
+                    //NOTE: without timesignature we cant show notes.
+                    return;
+                }
+
                 double countsPerBar = timeSignatures[0] * (1.0 / timeSignatures[1]);
 
                 if (timeSignatures[0] != previousTimeSig0 && timeSignatures[1] != previousTimeSig1)

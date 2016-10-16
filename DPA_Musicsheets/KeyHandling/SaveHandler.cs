@@ -19,9 +19,7 @@ namespace DPA_Musicsheets.KeyHandling
 
         public void Handle()
         {
-            if (EditorWrapper == null)
-                return;
-            EditorWrapper.Save();
+            EditorWrapper?.Save();
         }
 
         //public Key Key { get; private set; } = Key.S;

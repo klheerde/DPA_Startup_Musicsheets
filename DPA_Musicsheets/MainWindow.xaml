@@ -39,7 +39,10 @@
         <TextBox x:Name="editor" HorizontalAlignment="Right" Height="275" Margin="0,11,10.2,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="510"/>
 
         <!--<Button x:Name="btn_Edit" Content="Edit" HorizontalAlignment="Right" Margin="0,11,10.2,0" VerticalAlignment="Top" Width="75" Click="btnEdit_Click"/>-->
+        <!--<Button x:Name="btn_Save" Content="{Binding SaveButtonText, Mode=OneWay, UpdateSourceTrigger=PropertyChanged, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type local:MainWindow}}}" HorizontalAlignment="Right" Margin="0,11,10.2,0" VerticalAlignment="Top" Width="75" Click="btnSave_Click"/>-->
         <Button x:Name="btn_Save" Content="Save" HorizontalAlignment="Right" Margin="0,11,10.2,0" VerticalAlignment="Top" Width="75" Click="btnSave_Click"/>
+        <Button x:Name="btn_Undo" Content="Undo" HorizontalAlignment="Right" Margin="0,35,10.2,0" VerticalAlignment="Top" Width="75" Click="btnUndo_Click"/>
+        <Button x:Name="btn_Redo" Content="Redo" HorizontalAlignment="Right" Margin="0,59,10.2,0" VerticalAlignment="Top" Width="75" Click="btnRedo_Click"/>
 
         <ScrollViewer VerticalScrollBarVisibility="Hidden" HorizontalScrollBarVisibility="Auto" Margin="0,291,0.4,0.4">
             <PSAMWPFControl:IncipitViewerWPF HorizontalAlignment="Left" x:Name="staff" Width="9999" Height="128">

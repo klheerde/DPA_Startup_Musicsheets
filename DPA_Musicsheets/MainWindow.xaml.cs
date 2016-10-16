@@ -31,6 +31,9 @@ namespace DPA_Musicsheets
     public partial class MainWindow : Window
     {
         private ObservableCollection<TrackViewModel> trackViewModels = new ObservableCollection<TrackViewModel>();
+        //public string SaveButtonText { get { return "Save" + (editorWrapper.Saved ? "" : " *"); } }
+        //UpdateSourceTrigger="PropertyChanged"
+
         private Player player = new Player();
         private Song song;
 
@@ -43,20 +46,22 @@ namespace DPA_Musicsheets
         {
             InitializeComponent();
             DataContext = trackViewModels;
-            
+
+            KeyBinder.MainWindow = this;
+            keyBinder = new KeyBinder(this);
+            SetMainWindowKeyBindings();
+
             editorWrapper = new EditorWrapper(editor);
             //NOTE: set function to be called when Song created after auto compile.
             editorWrapper.AddHandler(new Action<Song>(Editor_TimerElapsed));
-            SetMainWindowKeyBindings();
         }
 
         private void SetMainWindowKeyBindings()
         {
-            //keyBinder = new KeyBinder(this);
-            ////NOTE: keybinding applied to general app.
-            //keyBinder.Handlers.Add(new SaveHandler(editorWrapper));
-            //keyBinder.Handlers.Add(new OpenHandler(Open));
-            //keyBinder.Handlers.Add(new PdfHandler());
+            //NOTE: keybinding applied to general app.
+            keyBinder.Handlers.Add(new SaveHandler(editorWrapper));
+            keyBinder.Handlers.Add(new OpenHandler(Open));
+            keyBinder.Handlers.Add(new PdfHandler());
         }
 
         private void Open()
@@ -109,6 +114,14 @@ namespace DPA_Musicsheets
         {
             editorWrapper.Save();
         }
+        private void btnUndo_Click(object sender, RoutedEventArgs e)
+        {
+            editorWrapper.Undo();
+        }
+        private void btnRedo_Click(object sender, RoutedEventArgs e)
+        {
+            editorWrapper.Redo();
+        }
 
         private void btnPlay_Click(object sender, RoutedEventArgs e)
         {
@@ -127,6 +140,8 @@ namespace DPA_Musicsheets
             //TODO is saved?
             if (player != null)
                 player.Dispose();
+            if (!editorWrapper.Saved)
+                editorWrapper.Save();
         }
         private void tabCtrl_MidiContent_SelectedIndexChanged(object sender, EventArgs e)
         {
