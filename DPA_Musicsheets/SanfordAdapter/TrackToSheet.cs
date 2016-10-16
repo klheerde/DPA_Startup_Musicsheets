@@ -57,6 +57,8 @@ namespace DPA_Musicsheets.SanfordAdapter
                 }
             }
 
+            private Note splittedNext = null;
+            //private bool soundThrough = false;
             private void WriteNoteList(TrackPart trackPart, List<Tonal.Note> notes)
             {
                 //NOTE: [2] = ticksPerBeat, [3] = ticksPerBar.
@@ -83,28 +85,41 @@ namespace DPA_Musicsheets.SanfordAdapter
                 double currentCount = 0.0;
                 foreach (Tonal.Note note in notes)
                 {
+                    if (splittedNext != null)
+                    {
+                        Viewer.AddMusicalSymbol(splittedNext);
+                        currentCount += 1.0 / (int)splittedNext.Duration;
+                        splittedNext = null;
+                    }
+
                     double counts = 1.0 / note.Count;
                     currentCount += counts;
                     currentCount += (counts / 2) * (note.Dotted ? 1 : 0); //TODO dotted to dots int
 
-                    double countDiffFromBar = currentCount - countsPerBar;
-                    //TODO sound through bar if note longer
-                    //MusicalSymbolDuration duration = (MusicalSymbolDuration)(countDiffFromBar <= 0 ? note.Count : 1.0 / (1.0 / note.Count - countDiffFromBar));
-                    MusicalSymbolDuration duration = (MusicalSymbolDuration)note.Count;
+                    int dots; //default -1 in Duration();
+                    int nextDots; //default -1 in Duration();
+                    MusicalSymbolDuration duration; //default note.Count in Duration();
+                    MusicalSymbolDuration nextDuration; //default 0
+                    
+                    //NOTE: sets note counts for sound through.
+                    Duration(currentCount, countsPerBar, note, out duration, out dots, out nextDuration, out nextDots);
 
-                    MusicalSymbol symbol = BuildSymbol(note, duration);
+                    MusicalSymbol symbol = BuildSymbol(note, duration, dots);
                     Viewer.AddMusicalSymbol(symbol);
 
                     if (currentCount >= countsPerBar) //was ticksPerBar
                     {
                         Viewer.AddMusicalSymbol(new Barline());
 
-                        //if (countDiffFromBar > 0)
-                        //{
-                        //    MusicalSymbolDuration duration2 = (MusicalSymbolDuration)(1 / countDiffFromBar);
-                        //    //NOTE: only uses tone, octave and raise from note.
-                        //    MusicalSymbol symbol2 = BuildSymbol(note, duration2);
-                        //}
+                        if (currentCount > countsPerBar)
+                        {
+                            splittedNext = BuildSymbol(note, nextDuration, nextDots) as Note;
+                            if (trackPart == Song.Tracks.Last().Parts.Last() && note == notes.Last())
+                            {
+                                Viewer.AddMusicalSymbol(splittedNext);
+                                splittedNext = null;
+                            }
+                        }
 
                         currentCount = 0;
                     }
@@ -145,8 +160,54 @@ namespace DPA_Musicsheets.SanfordAdapter
                 return new int[] { timeSig0, timeSig1, ticksPerBeat, ticksPerBar };
             }
 
-            private MusicalSymbol BuildSymbol(Tonal.Note note, MusicalSymbolDuration duration)
+            private void Duration(
+                double currentCount, double countsPerBar, Tonal.Note note,
+                out MusicalSymbolDuration duration, out int dots,
+                out MusicalSymbolDuration nextDuration, out int nextDots)
             {
+                dots = -1;
+                duration = (MusicalSymbolDuration)note.Count;
+                nextDots = -1;
+                nextDuration = 0;
+
+                if (currentCount > countsPerBar)
+                {
+                    double noteCount = 1.0 / note.Count * (note.Dotted ? 1.5 : 1);
+                    double maxNoteCount = countsPerBar - (currentCount - noteCount);
+                    Duration(maxNoteCount, out duration, out dots);
+                    Duration(noteCount - maxNoteCount, out nextDuration, out nextDots);
+                    //double countDiffFromBar = currentCount - countsPerBar;
+                    //double left = 1.0 / note.Count - countDiffFromBar;
+                }
+            }
+
+            private void Duration(double counts, out MusicalSymbolDuration duration, out int dots)
+            {
+                dots = -1;
+                duration = 0;
+                double wholised = 1 / counts;
+                //NOTE: is round number (1.0) and exists.
+                if (wholised % 1 == 0 && Enum.IsDefined(typeof(MusicalSymbolDuration), (int)wholised))
+                {
+                    dots = 0;
+                    duration = (MusicalSymbolDuration)wholised;
+                    return;
+                }
+                double divided = 1 / (counts / 1.5);
+                if (divided % 1 == 0 && Enum.IsDefined(typeof(MusicalSymbolDuration), (int)divided))
+                {
+                    dots = 1;
+                    duration = (MusicalSymbolDuration)divided;
+                }
+            }
+
+            private MusicalSymbol BuildSymbol(Tonal.Note note, MusicalSymbolDuration duration = 0, int dots = -1)
+            {
+                if (duration == 0)
+                {
+                    duration = (MusicalSymbolDuration)note.Count;
+                }
+
                 if (note.Tone == Tonal.Tone.R)
                 {
                     return new Rest(duration);
@@ -158,7 +219,7 @@ namespace DPA_Musicsheets.SanfordAdapter
                 return new Note(tone, raise, octave, duration, NoteStemDirection.Up, NoteTieType.None, new List<NoteBeamType>() { NoteBeamType.Single })
                 {
                     //TODO multiple dots
-                    NumberOfDots = note.Dotted ? 1 : 0
+                    NumberOfDots = dots >= 0 ? dots : note.Dotted ? 1 : 0
                 };
             }
 

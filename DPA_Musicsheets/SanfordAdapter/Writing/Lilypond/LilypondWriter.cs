@@ -202,7 +202,8 @@ namespace DPA_Musicsheets.SanfordAdapter.Writing.Lilypond
                 }
                 else
                 {
-                    output += "c ";
+                    //NOTE: added 0 because is removed later.
+                    output += "c0 ";
                 }
             }
 
